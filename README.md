@@ -1,56 +1,56 @@
 # SF-SeatTracker
 
-Sistema de gerenciamento de assentos de cinema desenvolvido em Lightning Web Components (LWC) para Salesforce, com integração a API real de filmes e horários de cinema.
+Cinema seat management system developed in Lightning Web Components (LWC) for Salesforce, with integration to real movie and cinema showtime APIs.
 
 ![Salesforce](https://img.shields.io/badge/Salesforce-00A1E0?style=for-the-badge&logo=salesforce&logoColor=white)
 ![Lightning Web Components](https://img.shields.io/badge/LWC-0176D3?style=for-the-badge&logo=salesforce&logoColor=white)
 ![Apex](https://img.shields.io/badge/Apex-00A1E0?style=for-the-badge&logo=salesforce&logoColor=white)
 
-## 📋 Índice
+## 📋 Table of Contents
 
-- [Sobre o Projeto](#sobre-o-projeto)
-- [Funcionalidades](#funcionalidades)
-- [Arquitetura](#arquitetura)
-- [Tecnologias Utilizadas](#tecnologias-utilizadas)
-- [Pré-requisitos](#pré-requisitos)
-- [Instalação](#instalação)
-- [Configuração](#configuração)
-- [Estrutura do Projeto](#estrutura-do-projeto)
-- [Uso](#uso)
-- [Testes](#testes)
+- [About the Project](#about-the-project)
+- [Features](#features)
+- [Architecture](#architecture)
+- [Technologies Used](#technologies-used)
+- [Prerequisites](#prerequisites)
+- [Installation](#installation)
+- [Configuration](#configuration)
+- [Project Structure](#project-structure)
+- [Usage](#usage)
+- [Testing](#testing)
 - [Roadmap](#roadmap)
-- [Contribuindo](#contribuindo)
-- [Licença](#licença)
-- [Contato](#contato)
+- [Contributing](#contributing)
+- [License](#license)
+- [Contact](#contact)
 
-## 🎬 Sobre o Projeto
+## 🎬 About the Project
 
-SF-SeatTracker é um sistema completo de gerenciamento de reservas de assentos de cinema desenvolvido na plataforma Salesforce. O projeto integra dados reais de filmes, cinemas e horários através da **MovieGlu API**, oferecendo uma experiência interativa para seleção e reserva de assentos.
+SF-SeatTracker is a complete cinema seat reservation management system developed on the Salesforce platform. The project integrates real data from movies, theaters, and showtimes through the MovieGlu API.
 
-### Objetivos
+### Objectives
 
-- Consumir API real (MovieGlu) para exibir filmes em cartaz, cinemas e horários
-- Simular seleção e reserva de assentos de cinema
-- Demonstrar arquitetura completa do ecossistema Salesforce
-- Oferecer experiência responsiva com Lightning Web Components
-- Automatizar processos com Flows e triggers
-- Fornecer analytics através de relatórios e dashboards
+- Consume real API (MovieGlu) to display movies in theaters, cinemas, and showtimes
+- Simulate seat selection and reservation for cinema
+- Demonstrate complete architecture of the Salesforce ecosystem
+- Offer responsive experience with Lightning Web Components
+- Automate processes with Flows and triggers
+- Provide analytics through reports and dashboards
 
-## ✨ Funcionalidades
+## ✨ Features
 
-- ✅ **Busca de Filmes**: Pesquisa de filmes em cartaz por localização (geolocalização)
-- ✅ **Listagem de Cinemas**: Exibição de cinemas próximos com mapa
-- ✅ **Horários Disponíveis**: Visualização de sessões por filme e cinema
-- ✅ **Seleção de Assentos**: Interface interativa para escolha de assentos (grid visual)
-- ✅ **Reserva de Ingressos**: Processo completo de reserva com confirmação
-- ✅ **Gestão de Reservas**: Acompanhamento do status das reservas (Pendente/Aprovado/Cancelado)
-- ✅ **Notificações**: Envio automático de emails de confirmação
-- ✅ **Relatórios**: Dashboards com métricas de ocupação e reservas
-- ✅ **Portal Externo**: Experience Cloud para acesso público
+- ✅ **Movie Search**: Search for movies in theaters by location (geolocation)
+- ✅ **Theater Listing**: Display nearby theaters with map
+- ✅ **Available Showtimes**: View sessions by movie and theater
+- ✅ **Seat Selection**: Interactive interface for seat selection (visual grid)
+- ✅ **Ticket Reservation**: Complete reservation process with confirmation
+- ✅ **Reservation Management**: Track reservation status (Pending/Approved/Canceled)
+- ✅ **Notifications**: Automatic sending of confirmation emails
+- ✅ **Reports**: Dashboards with occupancy and reservation metrics
+- ✅ **External Portal**: Experience Cloud for public access
 
-## 🏗️ Arquitetura
+## 🏗️ Architecture
 
-### Camadas do Sistema
+### System Layers
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -74,131 +74,131 @@ SF-SeatTracker é um sistema completo de gerenciamento de reservas de assentos d
        └────────────────┘   └─────────────────────────┘
 ```
 
-### Objetos Customizados
+### Custom Objects
 
-| Objeto | Relacionamento | Descrição |
+| Object | Relationship | Description |
 |--------|---------------|-----------|
-| **Movie__c** | - | Armazena informações de filmes (nome, descrição, poster, ID da API) |
-| **Theater__c** | - | Dados de cinemas (nome, endereço, localização geográfica) |
-| **Showtime__c** | Master-Detail → Movie__c, Theater__c | Horários de sessões com preços e assentos disponíveis |
-| **Reservation__c** | Lookup → Account, Movie__c, Showtime__c | Reservas com status e valor total |
-| **Seat__c** | Master-Detail → Showtime__c | Assentos individuais por sessão |
+| **Movie__c** | - | Stores movie information (name, description, poster, API ID) |
+| **Theater__c** | - | Theater data (name, address, geographic location) |
+| **Showtime__c** | Master-Detail → Movie__c, Theater__c | Session times with prices and available seats |
+| **Reservation__c** | Lookup → Account, Movie__c, Showtime__c | Reservations with status and total amount |
+| **Seat__c** | Master-Detail → Showtime__c | Individual seats per session |
 
-## 🛠️ Tecnologias Utilizadas
+## 🛠️ Technologies Used
 
 ### Salesforce Platform
 
-- **Lightning Web Components (LWC)** - Framework frontend moderno
-- **Apex** - Backend e lógica de negócios
-- **Flows** - Automações e processos
-- **Experience Cloud** - Portal externo
-- **Reports & Dashboards** - Analytics e visualizações
-- **Named Credentials** - Integração segura com APIs
+- **Lightning Web Components (LWC)** - Modern frontend framework
+- **Apex** - Backend and business logic
+- **Flows** - Automations and processes
+- **Experience Cloud** - External portal
+- **Reports & Dashboards** - Analytics and visualizations
+- **Named Credentials** - Secure API integration
 
-### Integrações
+### Integrations
 
-- **MovieGlu API** - Dados reais de filmes e cinemas
-- **Geolocation API** - Busca por proximidade
+- **MovieGlu API** - Real movie and theater data
+- **Geolocation API** - Proximity search
 
-### Ferramentas de Desenvolvimento
+### Development Tools
 
 - Salesforce CLI (SFDX)
 - Visual Studio Code + Salesforce Extensions
 - Git/GitHub
-- Postman (para testes de API)
+- Postman (for API testing)
 
-## 📦 Pré-requisitos
+## 📦 Prerequisites
 
-Antes de começar, você precisa ter:
+Before you begin, you need:
 
-- **Salesforce Developer Org** ([Criar conta gratuita](https://developer.salesforce.com/signup))
-- **MovieGlu API Key** ([Registrar em developer.movieglu.com](https://developer.movieglu.com))
-- **Salesforce CLI** instalado ([Guia de instalação](https://developer.salesforce.com/tools/sfdxcli))
-- **Visual Studio Code** com extensões Salesforce ([Download](https://code.visualstudio.com/))
-- **Git** instalado
+- **Salesforce Developer Org** ([Create free account](https://developer.salesforce.com/signup))
+- **MovieGlu API Key** ([Register at developer.movieglu.com](https://developer.movieglu.com))
+- **Salesforce CLI** installed ([Installation guide](https://developer.salesforce.com/tools/sfdxcli))
+- **Visual Studio Code** with Salesforce extensions ([Download](https://code.visualstudio.com/))
+- **Git** installed
 
-## 🚀 Instalação
+## 🚀 Installation
 
-### 1. Clone o Repositório
+### 1. Clone the Repository
 
 ```bash
 git clone https://github.com/CristianoFIlho/SF-SeatTracker.git
 cd SF-SeatTracker
 ```
 
-### 2. Autentique no Salesforce
+### 2. Authenticate to Salesforce
 
 ```bash
 sfdx auth:web:login -a DevOrg -r https://login.salesforce.com
 ```
 
-### 3. Crie um Scratch Org (Opcional)
+### 3. Create a Scratch Org (Optional)
 
 ```bash
 sfdx force:org:create -f config/project-scratch-def.json -a SeatTrackerOrg -s -d 30
 ```
 
-### 4. Deploy dos Metadados
+### 4. Deploy Metadata
 
 ```bash
 sfdx force:source:push -u SeatTrackerOrg
 ```
 
-### 5. Atribuir Permission Set
+### 5. Assign Permission Set
 
 ```bash
 sfdx force:user:permset:assign -n Cinema_Reservation_Admin
 ```
 
-### 6. Importar Dados de Exemplo (Opcional)
+### 6. Import Sample Data (Optional)
 
 ```bash
 sfdx force:data:tree:import -p data/sample-data-plan.json
 ```
 
-## ⚙️ Configuração
+## ⚙️ Configuration
 
-### 1. Configurar Named Credential
+### 1. Configure Named Credential
 
-1. Acesse **Setup** > **Named Credentials** > **New**
-2. Preencha:
+1. Access **Setup** > **Named Credentials** > **New**
+2. Fill in:
    - **Label**: MovieGlu_API
    - **URL**: `https://api-gate.movieglu.com`
    - **Identity Type**: Named Principal
    - **Authentication Protocol**: Custom
-3. Em **Custom Headers**, adicione:
+3. In **Custom Headers**, add:
    ```
-   x-api-key: SUA_CHAVE_API_AQUI
-   client: SEU_CLIENT_ID_AQUI
+   x-api-key: YOUR_API_KEY_HERE
+   client: YOUR_CLIENT_ID_HERE
    authorization: Basic BASE64_ENCODED_CREDENTIALS
    x-api-key: YOUR_API_KEY
    ```
 
-### 2. Configurar Remote Site Settings
+### 2. Configure Remote Site Settings
 
 1. **Setup** > **Remote Site Settings** > **New**
 2. **Remote Site URL**: `https://api-gate.movieglu.com`
-3. Marque **Active**
+3. Check **Active**
 
-### 3. Ajustar Geolocalização
+### 3. Adjust Geolocation
 
-No arquivo `force-app/main/default/lwc/movieSearch/movieSearch.js`, ajuste as coordenadas padrão:
+In the file `force-app/main/default/lwc/movieSearch/movieSearch.js`, adjust the default coordinates:
 
 ```javascript
-// Para São Paulo, Brasil
+// For São Paulo, Brazil
 @track lat = '-23.5505';
 @track lon = '-46.6333';
 ```
 
-### 4. Configurar Experience Cloud (Opcional)
+### 4. Configure Experience Cloud (Optional)
 
 1. **Setup** > **Digital Experiences** > **All Sites** > **New**
-2. Escolha template **Customer Service**
-3. Nome: **Cinema Reservation Portal**
+2. Choose **Customer Service** template
+3. Name: **Cinema Reservation Portal**
 4. URL: `cinema-reserva`
-5. Adicione LWC components às páginas
+5. Add LWC components to pages
 
-## 📁 Estrutura do Projeto
+## 📁 Project Structure
 
 ```
 SF-SeatTracker/
@@ -206,23 +206,23 @@ SF-SeatTracker/
 │   └── main/
 │       └── default/
 │           ├── classes/                    # Apex Classes
-│           │   ├── MovieGluService.cls     # Serviço de integração com API
+│           │   ├── MovieGluService.cls     # API integration service
 │           │   ├── ReservationController.cls
 │           │   ├── SeatManagementService.cls
-│           │   └── *Test.cls               # Classes de teste
+│           │   └── *Test.cls               # Test classes
 │           ├── lwc/                        # Lightning Web Components
-│           │   ├── cinemaBooking/          # Componente principal
-│           │   ├── movieSearch/            # Busca de filmes
-│           │   ├── showtimeSelector/       # Seleção de horários
-│           │   ├── seatReservation/        # Grid de assentos
-│           │   └── confirmationModal/      # Modal de confirmação
+│           │   ├── cinemaBooking/          # Main component
+│           │   ├── movieSearch/            # Movie search
+│           │   ├── showtimeSelector/       # Showtime selection
+│           │   ├── seatReservation/        # Seat grid
+│           │   └── confirmationModal/      # Confirmation modal
 │           ├── objects/                    # Custom Objects
 │           │   ├── Movie__c/
 │           │   ├── Theater__c/
 │           │   ├── Showtime__c/
 │           │   ├── Reservation__c/
 │           │   └── Seat__c/
-│           ├── flows/                      # Screen Flows e Automações
+│           ├── flows/                      # Screen Flows and Automations
 │           │   └── ReservaCinemaFlow.flow
 │           ├── triggers/                   # Apex Triggers
 │           │   └── ShowtimeTrigger.trigger
@@ -240,65 +240,65 @@ SF-SeatTracker/
 └── package.json
 ```
 
-## 💻 Uso
+## 💻 Usage
 
-### Para Usuários Finais
+### For End Users
 
-1. **Acessar Portal**: Navegue até `https://[seu-dominio].my.site.com/cinema-reserva`
-2. **Buscar Filmes**: Use a barra de pesquisa ou geolocalização
-3. **Selecionar Sessão**: Clique em um filme e escolha horário
-4. **Escolher Assentos**: Clique nos assentos disponíveis (verdes)
-5. **Confirmar Reserva**: Preencha dados e finalize
-6. **Receber Confirmação**: Verifique email com detalhes da reserva
+1. **Access Portal**: Navigate to `https://[your-domain].my.site.com/cinema-reserva`
+2. **Search Movies**: Use the search bar or geolocation
+3. **Select Session**: Click on a movie and choose a showtime
+4. **Choose Seats**: Click on available seats (green)
+5. **Confirm Reservation**: Fill in details and complete
+6. **Receive Confirmation**: Check email with reservation details
 
-### Para Administradores
+### For Administrators
 
-#### Sincronizar Filmes da API
+#### Sync Movies from API
 
 ```apex
-// Execute no Developer Console
+// Execute in Developer Console
 MovieGluService.syncNowShowingFilms('-23.5505', '-46.6333');
 ```
 
-#### Atualizar Horários
+#### Update Showtimes
 
 ```apex
-// Sincronizar horários de um filme específico
+// Sync showtimes for a specific movie
 MovieGluService.syncShowtimes('MOVIE_ID_API', '-23.5505', '-46.6333', Date.today());
 ```
 
-#### Visualizar Dashboards
+#### View Dashboards
 
-1. Acesse **App Launcher** > **Cinema Management**
-2. Navegue até tab **Dashboards**
-3. Visualize métricas de:
-   - Ocupação por cinema
-   - Filmes mais reservados
-   - Receita por período
+1. Access **App Launcher** > **Cinema Management**
+2. Navigate to **Dashboards** tab
+3. View metrics for:
+   - Occupancy by theater
+   - Most reserved movies
+   - Revenue by period
 
-## 🧪 Testes
+## 🧪 Testing
 
-### Executar Testes Unitários
+### Run Unit Tests
 
 ```bash
-# Todos os testes
+# All tests
 sfdx force:apex:test:run -l RunLocalTests -w 10 -r human
 
-# Teste específico
+# Specific test
 sfdx force:apex:test:run -n MovieGluServiceTest -r human
 ```
 
-### Cobertura de Código
+### Code Coverage
 
-O projeto mantém **>75% de cobertura** em Apex:
+The project maintains **>75% coverage** in Apex:
 
 ```bash
 sfdx force:apex:test:run -c -r human
 ```
 
-### Testes de Integração
+### Integration Tests
 
-Mock da MovieGlu API em `MovieGluHttpCalloutMock.cls`:
+MovieGlu API mock in `MovieGluHttpCalloutMock.cls`:
 
 ```apex
 @isTest
@@ -315,75 +315,75 @@ global class MovieGluHttpCalloutMock implements HttpCalloutMock {
 
 ## 🗺️ Roadmap
 
-### Fase 1 - Core Features (Concluído)
-- [x] Integração com MovieGlu API
-- [x] CRUD de objetos customizados
-- [x] LWC para busca e reserva
-- [x] Flows para automação de emails
+### Phase 1 - Core Features (Completed)
+- [x] MovieGlu API integration
+- [x] Custom objects CRUD
+- [x] LWC for search and reservation
+- [x] Flows for email automation
 
-### Fase 2 - Melhorias (Em Progresso)
-- [ ] Integração com pagamento (Stripe/PayPal)
-- [ ] Notificações em tempo real (Platform Events)
-- [ ] Suporte a múltiplos idiomas
-- [ ] QR Code para ingressos
+### Phase 2 - Improvements (In Progress)
+- [ ] Payment integration (Stripe/PayPal)
+- [ ] Real-time notifications (Platform Events)
+- [ ] Multi-language support
+- [ ] QR Code for tickets
 
-### Fase 3 - Avançado
-- [ ] Einstein Analytics para previsões
-- [ ] Chatbot com Einstein Bots
-- [ ] Mobile app com Salesforce Mobile SDK
-- [ ] Integração com sistemas de bilheteria real
+### Phase 3 - Advanced
+- [ ] Einstein Analytics for predictions
+- [ ] Chatbot with Einstein Bots
+- [ ] Mobile app with Salesforce Mobile SDK
+- [ ] Integration with real ticketing systems
 
-## 🤝 Contribuindo
+## 🤝 Contributing
 
-Contribuições são bem-vindas! Siga os passos:
+Contributions are welcome! Follow these steps:
 
-1. Fork o projeto
-2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
-3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
-4. Push para a branch (`git push origin feature/AmazingFeature`)
-5. Abra um Pull Request
+1. Fork the project
+2. Create a branch for your feature (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
-### Padrões de Código
+### Code Standards
 
-- **Apex**: Siga [Apex Style Guide](https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/)
+- **Apex**: Follow [Apex Style Guide](https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/)
 - **LWC**: Use [Lightning Web Components Best Practices](https://developer.salesforce.com/docs/component-library/documentation/en/lwc)
 - **Commits**: Use [Conventional Commits](https://www.conventionalcommits.org/)
 
-## 📄 Licença
+## 📄 License
 
-Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
+This project is under the MIT license. See the [LICENSE](LICENSE) file for more details.
 
-## 👤 Contato
+## 👤 Contact
 
 **Cristiano Filho**
 
 - GitHub: [@CristianoFIlho](https://github.com/CristianoFIlho)
-- LinkedIn: [Seu LinkedIn](https://linkedin.com/in/seu-perfil)
-- Email: seu-email@exemplo.com
+- LinkedIn: [Your LinkedIn](https://linkedin.com/in/your-profile)
+- Email: your-email@example.com
 
 ---
 
-## 📚 Recursos Adicionais
+## 📚 Additional Resources
 
-### Documentação
+### Documentation
 - [MovieGlu API Docs](https://developer.movieglu.com/docs)
 - [Salesforce LWC Guide](https://developer.salesforce.com/docs/component-library/documentation/en/lwc)
 - [Apex Integration Services Trailhead](https://trailhead.salesforce.com/content/learn/modules/apex_integration_services)
 
-### Trailheads Recomendados
+### Recommended Trailheads
 - 🎯 [Build Apps Together with Package Development](https://trailhead.salesforce.com/en/content/learn/trails/sfdx_get_started)
 - 🎯 [Lightning Web Components Basics](https://trailhead.salesforce.com/content/learn/modules/lightning-web-components-basics)
 - 🎯 [Apex Integration Services](https://trailhead.salesforce.com/content/learn/modules/apex_integration_services)
 
-### Comunidade
+### Community
 - [Salesforce Developers Forum](https://developer.salesforce.com/forums)
 - [Salesforce Stack Exchange](https://salesforce.stackexchange.com/)
 - [Trailblazer Community](https://trailblazers.salesforce.com/)
 
 ---
 
-⭐ **Se este projeto foi útil, considere dar uma estrela!** ⭐
+⭐ **If this project was helpful, consider giving it a star!** ⭐
 
 ---
 
-**Desenvolvido com ❤️ usando Salesforce Platform**
+**Developed with ❤️ using Salesforce Platform**
