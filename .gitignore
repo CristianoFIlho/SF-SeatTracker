@@ -2,6 +2,7 @@
 .sf/
 .sfdx/
 .localdevserver/
+deploy-options.json
 
 # LWC VSCode autocomplete
 **/lwc/jsconfig.json
@@ -35,39 +36,39 @@ $RECYCLE.BIN/
 .env
 .env.local
 
-# Python Salesforce Functions
+# Python Salesforce DX
 **/__pycache__/
-**/.venv/
-**/venv/
+**/*.pyc
 
-# Scratch Org Files
-**/scratchOrg.json
+# Apex Log
+**/*.log-meta.xml
 
-# VS Code
+# Visual Studio Code
 .vscode/
 !.vscode/extensions.json
 !.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
 
-# IntelliJ
+# JetBrains IDEs
 .idea/
 *.iml
+
+# Scratch Org Definitions
+.scratch-orgs/
+
+# Config files with sensitive data
+**/connectedApps/*.connectedApp
+**/namedCredentials/*.namedCredential
+
+# Test results
+test-results/
+/test-result-*.json
+
+# PMD cache
+.pmd/
 
 # Backup files
 *.bak
 *.backup
-
-# Apex Anonymous Window
-anonymousApex.apex
-
-# Config files
-config/*.json
-!config/project-scratch-def.json
-
-# Certificates
-*.crt
-*.key
-*.pem
-
-# API Keys
-apikeys.txt
-credentials.txt
+*~

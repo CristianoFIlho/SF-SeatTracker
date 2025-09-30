@@ -1,12 +1,46 @@
 # List files or directories below to ignore them when running force:source:push, force:source:pull, and force:source:status
 # More information: https://developer.salesforce.com/docs/atlas.en-us.sfdx_dev.meta/sfdx_dev/sfdx_dev_exclude_source.htm
-#
-
-package.xml
 
 # LWC configuration files
 **/jsconfig.json
 **/.eslintrc.json
 
-# LWC Jest
+# LWC Jest tests
 **/__tests__/**
+
+# LWC test files
+**/*.test.js
+
+# Profiles (use Permission Sets instead)
+**/profiles/**
+
+# Translations
+**/objectTranslations/**
+**/translations/**
+
+# Connected Apps with sensitive data
+**/connectedApps/**
+
+# Settings
+**/settings/**
+
+# Standard objects
+**/objects/Account/**
+**/objects/Contact/**
+**/objects/Lead/**
+**/objects/Opportunity/**
+**/objects/User/**
+**/objects/Case/**
+
+# Package files
+package.xml
+destructiveChanges.xml
+destructiveChangesPre.xml
+destructiveChangesPost.xml
+
+# Salesforce DX Project: Exclude Lightning Page variants
+**/flexipages/*.json
+
+# Managed packages
+**/installedPackages/**
+

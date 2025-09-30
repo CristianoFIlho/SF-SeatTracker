@@ -1,13 +1,50 @@
 {
-  "orgName": "jarvis company",
+  "orgName": "SF-SeatTracker Scratch Org",
   "edition": "Developer",
-  "features": ["EnableSetPasswordInApi"],
+  "features": [
+    "EnableSetPasswordInApi",
+    "ExperienceBundle",
+    "Communities",
+    "Sites",
+    "LightningExperienceUser",
+    "LightningServiceConsole",
+    "ServiceCloud",
+    "MultiCurrency"
+  ],
   "settings": {
     "lightningExperienceSettings": {
       "enableS1DesktopEnabled": true
     },
+    "experienceBundleSettings": {
+      "enableExperienceBundleMetadata": true
+    },
     "mobileSettings": {
       "enableS1EncryptedStoragePref2": false
+    },
+    "communitiesSettings": {
+      "enableNetworksEnabled": true
+    },
+    "languageSettings": {
+      "enableTranslationWorkbench": false
+    },
+    "securitySettings": {
+      "sessionSettings": {
+        "forceRelogin": false
+      }
+    },
+    "chatterSettings": {
+      "enableChatter": true
     }
-  }
+  },
+  "objectSettings": {
+    "account": {
+      "sharingModel": "Read"
+    },
+    "contact": {
+      "sharingModel": "Read"
+    }
+  },
+  "hasSampleData": false,
+  "adminEmail": "admin@seattracker.dev"
 }
+

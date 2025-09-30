@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Reserved_Seats_Cannot_Exceed_Total</fullName>
+    <active>true</active>
+    <description>Reserved seats cannot exceed total seats</description>
+    <errorConditionFormula>Reserved_Seats__c &gt; Total_Seats__c</errorConditionFormula>
+    <errorDisplayField>Reserved_Seats__c</errorDisplayField>
+    <errorMessage>Reserved seats cannot exceed total seats available.</errorMessage>
+</ValidationRule>
