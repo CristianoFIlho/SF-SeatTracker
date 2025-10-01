@@ -1,0 +1,92 @@
+<template>
+    <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open">
+        <div class="slds-modal__container">
+            <!-- Modal Header -->
+            <header class="slds-modal__header">
+                <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close"
+                    onclick={handleClose}>
+                    <lightning-icon icon-name="utility:close" alternative-text="close" size="small"></lightning-icon>
+                    <span class="slds-assistive-text">Close</span>
+                </button>
+                <h2 class="slds-modal__title slds-hyphenate">Confirm Your Reservation</h2>
+            </header>
+
+            <!-- Modal Body -->
+            <div class="slds-modal__content slds-p-around_medium">
+                <!-- Reservation Summary -->
+                <div class="reservation-summary slds-box slds-m-bottom_medium">
+                    <h3 class="slds-text-heading_small slds-m-bottom_small">
+                        <lightning-icon icon-name="utility:summary" size="x-small"></lightning-icon>
+                        Reservation Summary
+                    </h3>
+                    <div class="summary-grid">
+                        <div class="summary-item">
+                            <span class="label">Movie:</span>
+                            <span class="value">{movieName}</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="label">Theater:</span>
+                            <span class="value">{theaterName}</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="label">Date & Time:</span>
+                            <span class="value">{sessionDateTime}</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="label">Seats:</span>
+                            <span class="value">{seatNumbers}</span>
+                        </div>
+                        <div class="summary-item total">
+                            <span class="label">Total Amount:</span>
+                            <span class="value">${totalAmount}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Customer Information Form -->
+                <div class="slds-form">
+                    <h3 class="slds-text-heading_small slds-m-bottom_small">
+                        <lightning-icon icon-name="utility:user" size="x-small"></lightning-icon>
+                        Customer Information
+                    </h3>
+
+                    <lightning-input label="Full Name" value={customerName} onchange={handleNameChange} required
+                        class="slds-m-bottom_small" placeholder="Enter your full name"></lightning-input>
+
+                    <lightning-input type="email" label="Email" value={customerEmail} onchange={handleEmailChange}
+                        required class="slds-m-bottom_small" placeholder="your.email@example.com"></lightning-input>
+
+                    <lightning-input type="tel" label="Phone (Optional)" value={customerPhone}
+                        onchange={handlePhoneChange} class="slds-m-bottom_small"
+                        placeholder="+1 (555) 123-4567"></lightning-input>
+
+                    <!-- Terms and Conditions -->
+                    <div class="slds-m-top_medium">
+                        <lightning-input type="checkbox" label="I agree to the terms and conditions"
+                            checked={agreeToTerms} onchange={handleTermsChange} required></lightning-input>
+                        <div class="terms-text slds-m-top_x-small slds-text-body_small slds-text-color_weak">
+                            By checking this box, you agree to our cancellation policy.
+                            Cancellations must be made at least 2 hours before the showtime for a refund.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <footer class="slds-modal__footer">
+                <button class="slds-button slds-button_neutral" onclick={handleClose}>
+                    Cancel
+                </button>
+                <button class="slds-button slds-button_brand" onclick={handleConfirm} disabled={isFormValid}>
+                    <template if:true={isLoading}>
+                        <lightning-spinner alternative-text="Processing..." size="small"></lightning-spinner>
+                    </template>
+                    <template if:false={isLoading}>
+                        Confirm Reservation
+                    </template>
+                </button>
+            </footer>
+        </div>
+    </section>
+    <div class="slds-backdrop slds-backdrop_open"></div>
+</template>

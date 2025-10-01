@@ -1,0 +1,127 @@
+.booking-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.progress-section {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.movie-header {
+    padding: 16px;
+    background: #f3f3f3;
+    border-radius: 8px;
+    border-left: 4px solid #0176d3;
+}
+
+.showtimes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 16px;
+    margin-top: 16px;
+}
+
+.showtime-card {
+    background: white;
+    border: 2px solid #dddbda;
+    border-radius: 8px;
+    padding: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.showtime-card:hover {
+    border-color: #0176d3;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+}
+
+.showtime-header h4 {
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0 0 4px 0;
+    color: #080707;
+}
+
+.showtime-header .address {
+    font-size: 13px;
+    color: #706e6b;
+    margin: 0;
+}
+
+.showtime-details {
+    margin-top: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.showtime-details .time {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 20px;
+    font-weight: 600;
+    color: #0176d3;
+}
+
+.showtime-details .badges {
+    display: flex;
+    gap: 8px;
+}
+
+.showtime-details .price {
+    font-size: 18px;
+    font-weight: 700;
+    color: #4bca81;
+}
+
+.showtime-details .availability {
+    font-size: 13px;
+    color: #706e6b;
+}
+
+.navigation-buttons {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.right-buttons {
+    display: flex;
+    gap: 12px;
+}
+
+@media (max-width: 768px) {
+    .booking-container {
+        padding: 10px;
+    }
+
+    .showtimes-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .navigation-buttons {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .right-buttons {
+        width: 100%;
+        justify-content: flex-end;
+    }
+}

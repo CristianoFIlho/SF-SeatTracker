@@ -1,44 +1,42 @@
 {
-  "name": "salesforce-app",
-  "private": true,
+  "name": "sf-seattracker",
   "version": "1.0.0",
-  "description": "Salesforce App",
+  "description": "Cinema seat management system developed in Lightning Web Components (LWC) for Salesforce",
+  "author": "Cristiano Filho",
+  "license": "MIT",
   "scripts": {
-    "lint": "eslint **/{aura,lwc}/**/*.js",
+    "lint": "eslint **/lwc/**/*.js",
     "test": "npm run test:unit",
-    "test:unit": "sfdx-lwc-jest",
+    "test:unit": "sfdx-lwc-jest --coverage",
     "test:unit:watch": "sfdx-lwc-jest --watch",
     "test:unit:debug": "sfdx-lwc-jest --debug",
-    "test:unit:coverage": "sfdx-lwc-jest --coverage",
     "prettier": "prettier --write \"**/*.{cls,cmp,component,css,html,js,json,md,page,trigger,xml,yaml,yml}\"",
     "prettier:verify": "prettier --check \"**/*.{cls,cmp,component,css,html,js,json,md,page,trigger,xml,yaml,yml}\"",
-    "prepare": "husky || true",
-    "precommit": "lint-staged"
+    "deploy:dev": "sfdx force:source:deploy -p force-app/main/default -u DevOrg",
+    "deploy:check": "sfdx force:source:deploy -p force-app/main/default --checkonly -u DevOrg",
+    "test:apex": "sfdx force:apex:test:run -l RunLocalTests -w 10 -r human",
+    "open:org": "sfdx force:org:open",
+    "create:scratch": "sfdx force:org:create -f config/project-scratch-def.json -a SeatTrackerOrg -s -d 30",
+    "push:source": "sfdx force:source:push -u SeatTrackerOrg",
+    "assign:permset": "sfdx force:user:permset:assign -n Cinema_Reservation_Admin",
+    "import:data": "sfdx force:data:tree:import -p data/sample-data-plan.json"
   },
   "devDependencies": {
-    "@lwc/eslint-plugin-lwc": "^3.1.0",
-    "@prettier/plugin-xml": "^3.4.1",
-    "@salesforce/eslint-config-lwc": "^4.0.0",
-    "@salesforce/eslint-plugin-aura": "^3.0.0",
-    "@salesforce/eslint-plugin-lightning": "^2.0.0",
-    "@salesforce/sfdx-lwc-jest": "^7.0.2",
-    "eslint": "^9.29.0",
-    "eslint-plugin-import": "^2.31.0",
-    "eslint-plugin-jest": "^28.14.0",
-    "husky": "^9.1.7",
-    "lint-staged": "^16.1.2",
-    "prettier": "^3.5.3",
-    "prettier-plugin-apex": "^2.2.6"
+    "@lwc/eslint-plugin-lwc": "^1.7.2",
+    "@prettier/plugin-xml": "^3.2.2",
+    "@salesforce/eslint-config-lwc": "^3.5.2",
+    "@salesforce/eslint-plugin-aura": "^2.1.0",
+    "@salesforce/eslint-plugin-lightning": "^1.0.0",
+    "@salesforce/sfdx-lwc-jest": "^3.1.1",
+    "eslint": "^8.54.0",
+    "eslint-plugin-import": "^2.29.0",
+    "eslint-plugin-jest": "^27.6.0",
+    "prettier": "^3.1.1",
+    "prettier-plugin-apex": "^2.0.1"
   },
-  "lint-staged": {
-    "**/*.{cls,cmp,component,css,html,js,json,md,page,trigger,xml,yaml,yml}": [
-      "prettier --write"
-    ],
-    "**/{aura,lwc}/**/*.js": [
-      "eslint"
-    ],
-    "**/lwc/**": [
-        "sfdx-lwc-jest -- --bail --findRelatedTests --passWithNoTests"
-    ]
+  "volta": {
+    "node": "18.19.0",
+    "npm": "10.2.3"
   }
 }
+

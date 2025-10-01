@@ -1,0 +1,73 @@
+<template>
+    <lightning-card title="Search Movies" icon-name="custom:custom48">
+        <div class="slds-p-around_medium">
+            <!-- Search Bar -->
+            <div class="slds-grid slds-gutters slds-m-bottom_medium">
+                <div class="slds-col slds-size_9-of-12">
+                    <lightning-input type="search" label="Search Movies"
+                        placeholder="Search by title, genre, or description..." value={searchTerm}
+                        onchange={handleSearch}></lightning-input>
+                </div>
+                <div class="slds-col slds-size_3-of-12 slds-p-top_large">
+                    <lightning-button label="Get Location" icon-name="utility:location" onclick={handleGetLocation}
+                        class="slds-m-right_x-small"></lightning-button>
+                    <lightning-button label="Refresh" icon-name="utility:refresh"
+                        onclick={handleRefresh}></lightning-button>
+                </div>
+            </div>
+
+            <!-- Loading Spinner -->
+            <template if:true={isLoading}>
+                <div class="slds-is-relative" style="height: 200px;">
+                    <lightning-spinner alternative-text="Loading movies..." size="medium"></lightning-spinner>
+                </div>
+            </template>
+
+            <!-- Movie Grid -->
+            <template if:true={hasMovies}>
+                <div class="movie-grid">
+                    <template for:each={filteredMovies} for:item="movie">
+                        <div key={movie.Id} class="movie-card" data-id={movie.Id} onclick={handleMovieSelect}>
+                            <div class="movie-poster">
+                                <template if:true={movie.Poster_URL__c}>
+                                    <img src={movie.Poster_URL__c} alt={movie.Name} />
+                                </template>
+                                <template if:false={movie.Poster_URL__c}>
+                                    <div class="movie-poster-placeholder">
+                                        <lightning-icon icon-name="custom:custom48" size="large"></lightning-icon>
+                                    </div>
+                                </template>
+                            </div>
+                            <div class="movie-info">
+                                <h3 class="movie-title">{movie.Name}</h3>
+                                <div class="movie-details">
+                                    <lightning-badge label={movie.Rating__c}></lightning-badge>
+                                    <span class="duration">{movie.Duration_Minutes__c} min</span>
+                                </div>
+                                <p class="movie-genre">{movie.Genre__c}</p>
+                                <p class="movie-synopsis">{movie.Synopsis__c}</p>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </template>
+
+            <!-- No Results -->
+            <template if:false={hasMovies}>
+                <template if:false={isLoading}>
+                    <div class="slds-text-align_center slds-p-around_large">
+                        <lightning-icon icon-name="utility:search" size="large"></lightning-icon>
+                        <p class="slds-m-top_medium">No movies found. Try adjusting your search.</p>
+                    </div>
+                </template>
+            </template>
+
+            <!-- Error Message -->
+            <template if:true={error}>
+                <div class="slds-box slds-theme_error slds-m-top_medium">
+                    <p>{error.body.message}</p>
+                </div>
+            </template>
+        </div>
+    </lightning-card>
+</template>

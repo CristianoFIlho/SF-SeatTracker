@@ -1,0 +1,102 @@
+<template>
+    <div class="booking-container">
+        <!-- Progress Indicator -->
+        <div class="progress-section slds-m-bottom_medium">
+            <lightning-progress-indicator current-step={currentStep} type="path" variant="base">
+                <lightning-progress-step label="Select Movie" value="1"></lightning-progress-step>
+                <lightning-progress-step label="Choose Showtime" value="2"></lightning-progress-step>
+                <lightning-progress-step label="Pick Seats" value="3"></lightning-progress-step>
+            </lightning-progress-indicator>
+        </div>
+
+        <!-- Breadcrumb -->
+        <div class="breadcrumb slds-m-bottom_medium">
+            <h2 class="slds-text-heading_medium">{currentStepLabel}</h2>
+        </div>
+
+        <!-- Step 1: Movie Selection -->
+        <template if:true={isStep1}>
+            <c-movie-search onmovieselect={handleMovieSelect}></c-movie-search>
+        </template>
+
+        <!-- Step 2: Showtime Selection -->
+        <template if:true={isStep2}>
+            <lightning-card title="Available Showtimes" icon-name="custom:custom58">
+                <div class="slds-p-around_medium">
+                    <div class="movie-header slds-m-bottom_medium">
+                        <h3 class="slds-text-heading_small">
+                            <lightning-icon icon-name="custom:custom48" size="small"></lightning-icon>
+                            {selectedMovie.Name}
+                        </h3>
+                        <p class="slds-text-body_small slds-text-color_weak">
+                            {selectedMovie.Duration_Minutes__c} minutes • {selectedMovie.Rating__c}
+                        </p>
+                    </div>
+
+                    <lightning-input type="date" label="Select Date" value={selectedDate} min={selectedDate}
+                        class="slds-m-bottom_medium"></lightning-input>
+
+                    <div class="showtimes-grid">
+                        <template if:true={showtimes}>
+                            <template for:each={showtimes} for:item="showtime">
+                                <div key={showtime.Id} class="showtime-card" data-id={showtime.Id}
+                                    onclick={handleShowtimeSelect}>
+                                    <div class="showtime-header">
+                                        <h4>{showtime.Theater__r.Name}</h4>
+                                        <p class="address">{showtime.Theater__r.City__c}</p>
+                                    </div>
+                                    <div class="showtime-details">
+                                        <div class="time">
+                                            <lightning-icon icon-name="utility:clock" size="x-small"></lightning-icon>
+                                            {showtime.Session_Time__c}
+                                        </div>
+                                        <div class="badges">
+                                            <template if:true={showtime.Is_3D__c}>
+                                                <lightning-badge label="3D"></lightning-badge>
+                                            </template>
+                                            <template if:true={showtime.Is_IMAX__c}>
+                                                <lightning-badge label="IMAX"></lightning-badge>
+                                            </template>
+                                        </div>
+                                        <div class="price">${showtime.Ticket_Price__c}</div>
+                                        <div class="availability">{showtime.Available_Seats__c} seats left</div>
+                                    </div>
+                                </div>
+                            </template>
+                        </template>
+                    </div>
+                </div>
+            </lightning-card>
+        </template>
+
+        <!-- Step 3: Seat Selection -->
+        <template if:true={isStep3}>
+            <c-seat-reservation showtime-id={selectedShowtime.Id} ticket-price={selectedShowtime.Ticket_Price__c}
+                onseatselection={handleSeatSelection}></c-seat-reservation>
+        </template>
+
+        <!-- Navigation Buttons -->
+        <div class="navigation-buttons slds-m-top_medium">
+            <lightning-button label="Start Over" onclick={handleStartOver}
+                variant="destructive-text"></lightning-button>
+
+            <div class="right-buttons">
+                <template if:false={isStep1}>
+                    <lightning-button label="Back" onclick={handleBack} icon-name="utility:back"
+                        class="slds-m-right_small"></lightning-button>
+                </template>
+
+                <lightning-button label={nextButtonLabel} onclick={handleNext} variant="brand" disabled={canProceed}
+                    icon-name="utility:forward" icon-position="right"></lightning-button>
+            </div>
+        </div>
+
+        <!-- Confirmation Modal -->
+        <template if:true={showConfirmationModal}>
+            <c-confirmation-modal showtime-id={selectedShowtime.Id} movie-name={selectedMovie.Name}
+                theater-name={selectedShowtime.Theater__r.Name} session-date-time={sessionDateTime}
+                seat-numbers={seatNumbers} total-amount={totalPrice} selected-seat-ids={selectedSeats}
+                onclose={handleCloseModal} onreservationsuccess={handleReservationSuccess}></c-confirmation-modal>
+        </template>
+    </div>
+</template>

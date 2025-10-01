@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Duration_Must_Be_Positive</fullName>
+    <active>true</active>
+    <description>Duration in minutes must be greater than 0</description>
+    <errorConditionFormula>AND(
+    NOT(ISBLANK(Duration_Minutes__c)),
+    Duration_Minutes__c &lt;= 0
+)</errorConditionFormula>
+    <errorDisplayField>Duration_Minutes__c</errorDisplayField>
+    <errorMessage>Duration must be greater than 0 minutes.</errorMessage>
+</ValidationRule>

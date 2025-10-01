@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Seats_Must_Be_Between_1_And_10</fullName>
+    <active>true</active>
+    <description>Number of seats must be between 1 and 10</description>
+    <errorConditionFormula>AND(
+    NOT(ISBLANK(Number_of_Seats__c)),
+    OR(Number_of_Seats__c &lt; 1, Number_of_Seats__c &gt; 10)
+)</errorConditionFormula>
+    <errorDisplayField>Number_of_Seats__c</errorDisplayField>
+    <errorMessage>Number of seats must be between 1 and 10.</errorMessage>
+</ValidationRule>

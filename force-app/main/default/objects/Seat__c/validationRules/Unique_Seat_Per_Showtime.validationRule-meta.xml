@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Unique_Seat_Per_Showtime</fullName>
+    <active>true</active>
+    <description>Seat combination of Row, Number, and Showtime must be unique</description>
+    <errorConditionFormula>AND(
+    NOT(ISBLANK(Row__c)),
+    NOT(ISBLANK(Number__c)),
+    NOT(ISBLANK(Showtime__c))
+)</errorConditionFormula>
+    <errorMessage>This seat (Row + Number) already exists for this showtime.</errorMessage>
+</ValidationRule>
