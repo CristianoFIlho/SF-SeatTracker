@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<RemoteSiteSetting xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>MovieGlu_API</fullName>
+    <description>MovieGlu API integration for cinema and movie data</description>
+    <disableProtocolSecurity>false</disableProtocolSecurity>
+    <isActive>true</isActive>
+    <url>https://api-gate.movieglu.com</url>
+</RemoteSiteSetting>
