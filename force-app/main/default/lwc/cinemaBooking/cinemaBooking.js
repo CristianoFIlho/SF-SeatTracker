@@ -34,12 +34,18 @@ export default class CinemaBooking extends LightningElement {
     }
 
     handleMovieSelect(event) {
-        this.selectedMovie = event.detail.movie;
-        this.currentStep = 2;
-        this.loadShowtimes();
+        if (event && event.detail && event.detail.movie) {
+            this.selectedMovie = event.detail.movie;
+            this.currentStep = 2;
+            this.loadShowtimes();
+        }
     }
 
     loadShowtimes() {
+        if (!this.selectedMovie || !this.selectedMovie.Id) {
+            console.error('No movie selected');
+            return;
+        }
         const dateObj = new Date(this.selectedDate);
         getAvailableShowtimes({ 
             movieId: this.selectedMovie.Id,
@@ -54,13 +60,17 @@ export default class CinemaBooking extends LightningElement {
     }
 
     handleShowtimeSelect(event) {
-        this.selectedShowtime = event.detail.showtime;
-        this.currentStep = 3;
+        if (event && event.detail && event.detail.showtime) {
+            this.selectedShowtime = event.detail.showtime;
+            this.currentStep = 3;
+        }
     }
 
     handleSeatSelection(event) {
-        this.selectedSeats = event.detail.selectedSeats;
-        this.totalPrice = event.detail.totalPrice;
+        if (event && event.detail) {
+            this.selectedSeats = event.detail.selectedSeats || [];
+            this.totalPrice = event.detail.totalPrice || 0;
+        }
     }
 
     handleNext() {
@@ -107,20 +117,25 @@ export default class CinemaBooking extends LightningElement {
     }
 
     get sessionDateTime() {
-        if (!this.selectedShowtime) return '';
-        const date = new Date(this.selectedShowtime.Session_DateTime__c);
-        return date.toLocaleString('en-US', {
-            weekday: 'long',
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-        });
+        if (!this.selectedShowtime || !this.selectedShowtime.Session_DateTime__c) return '';
+        try {
+            const date = new Date(this.selectedShowtime.Session_DateTime__c);
+            return date.toLocaleString('en-US', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        } catch (error) {
+            console.error('Error formatting date:', error);
+            return '';
+        }
     }
 
     get seatNumbers() {
-        if (!this.selectedSeats.length) return '';
+        if (!this.selectedSeats || !this.selectedSeats.length) return '';
         const seatComponent = this.template.querySelector('c-seat-reservation');
         return seatComponent ? seatComponent.selectedSeatNumbers : '';
     }
