@@ -8,21 +8,55 @@ public with sharing class SeatManagementService {
     private static final String[] ROWS = new String[]{'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'};
     
     /**
+     * @description Generate seats for a showtime using theater configuration
+     * @param showtimeId Showtime record ID
+     * @return List of created Seat__c records
+     */
+    public static List<Seat__c> generateSeats(Id showtimeId) {
+        return generateSeats(showtimeId, null, null);
+    }
+    
+    /**
      * @description Generate seats for a showtime
      * @param showtimeId Showtime record ID
-     * @param rows Number of rows (default 10)
-     * @param seatsPerRow Number of seats per row (default 10)
+     * @param numRows Number of rows (optional - will use theater config if null)
+     * @param seatsPerRow Number of seats per row (optional - will use theater config if null)
      * @return List of created Seat__c records
      */
     public static List<Seat__c> generateSeats(Id showtimeId, Integer numRows, Integer seatsPerRow) {
         List<Seat__c> seatsToInsert = new List<Seat__c>();
         
         try {
+            // Get theater configuration if parameters are not provided
+            if (numRows == null || seatsPerRow == null) {
+                System.debug('Getting theater configuration for showtime: ' + showtimeId);
+                Showtime__c showtime = [
+                    SELECT Id, Theater__c, Theater__r.Number_of_Rows__c, 
+                           Theater__r.Seats_Per_Row__c, Theater__r.Seat_Layout_Type__c
+                    FROM Showtime__c
+                    WHERE Id = :showtimeId
+                    LIMIT 1
+                ];
+                
+                System.debug('Theater config - Rows: ' + showtime.Theater__r.Number_of_Rows__c + 
+                           ', Seats per row: ' + showtime.Theater__r.Seats_Per_Row__c + 
+                           ', Layout: ' + showtime.Theater__r.Seat_Layout_Type__c);
+                
+                if (numRows == null) {
+                    numRows = showtime.Theater__r.Number_of_Rows__c != null ? 
+                             Integer.valueOf(showtime.Theater__r.Number_of_Rows__c) : 10;
+                }
+                if (seatsPerRow == null) {
+                    seatsPerRow = showtime.Theater__r.Seats_Per_Row__c != null ? 
+                                 Integer.valueOf(showtime.Theater__r.Seats_Per_Row__c) : 10;
+                }
+            }
+            
             // Validate parameters
-            if (numRows == null || numRows <= 0) {
+            if (numRows <= 0) {
                 numRows = 10;
             }
-            if (seatsPerRow == null || seatsPerRow <= 0) {
+            if (seatsPerRow <= 0) {
                 seatsPerRow = 10;
             }
             
@@ -38,9 +72,24 @@ public with sharing class SeatManagementService {
                 return new List<Seat__c>();
             }
             
-            // Generate seat matrix
-            for (Integer row = 0; row < numRows && row < ROWS.size(); row++) {
-                String rowLetter = ROWS[row];
+            // Get theater layout type for seat configuration
+            String layoutType = 'Standard';
+            if (numRows == null || seatsPerRow == null) {
+                Showtime__c showtime = [
+                    SELECT Theater__r.Seat_Layout_Type__c
+                    FROM Showtime__c
+                    WHERE Id = :showtimeId
+                    LIMIT 1
+                ];
+                layoutType = showtime.Theater__r.Seat_Layout_Type__c != null ? 
+                            showtime.Theater__r.Seat_Layout_Type__c : 'Standard';
+            }
+            
+            // Generate seat matrix with dynamic row letters
+            String[] rowLetters = generateRowLetters(numRows);
+            
+            for (Integer row = 0; row < numRows; row++) {
+                String rowLetter = rowLetters[row];
                 
                 for (Integer seatNum = 1; seatNum <= seatsPerRow; seatNum++) {
                     Seat__c seat = new Seat__c();
@@ -50,14 +99,8 @@ public with sharing class SeatManagementService {
                     seat.Name = rowLetter + '-' + seatNum;
                     seat.Status__c = 'Available';
                     
-                    // Assign seat types (VIP for front rows, Wheelchair for specific seats)
-                    if (row < 2) {
-                        seat.Seat_Type__c = 'VIP';
-                    } else if (row == numRows - 1 && (seatNum == 1 || seatNum == seatsPerRow)) {
-                        seat.Seat_Type__c = 'Wheelchair';
-                    } else {
-                        seat.Seat_Type__c = 'Standard';
-                    }
+                    // Assign seat types based on layout type
+                    seat.Seat_Type__c = determineSeatType(layoutType, row, seatNum, numRows, seatsPerRow);
                     
                     seatsToInsert.add(seat);
                 }
@@ -65,8 +108,11 @@ public with sharing class SeatManagementService {
             
             // Bulk insert all seats
             if (!seatsToInsert.isEmpty()) {
+                System.debug('About to insert ' + seatsToInsert.size() + ' seats for showtime: ' + showtimeId);
                 insert seatsToInsert;
                 System.debug('Successfully created ' + seatsToInsert.size() + ' seats for showtime: ' + showtimeId);
+            } else {
+                System.debug('No seats to insert for showtime: ' + showtimeId);
             }
             
         } catch (Exception e) {
@@ -169,6 +215,88 @@ public with sharing class SeatManagementService {
         }
         
         return stats;
+    }
+    
+    /**
+     * @description Generate row letters dynamically based on number of rows
+     * @param numRows Number of rows
+     * @return Array of row letters
+     */
+    private static String[] generateRowLetters(Integer numRows) {
+        String[] rowLetters = new String[]{};
+        
+        // Generate letters A-Z, then AA-ZZ, etc.
+        for (Integer i = 0; i < numRows; i++) {
+            String rowLetter = '';
+            Integer temp = i;
+            
+            do {
+                rowLetter = String.fromCharArray(new Integer[]{65 + Math.mod(temp, 26)}) + rowLetter;
+                temp = temp / 26;
+            } while (temp > 0);
+            
+            rowLetters.add(rowLetter);
+        }
+        
+        return rowLetters;
+    }
+    
+    /**
+     * @description Determine seat type based on layout and position
+     * @param layoutType Theater layout type
+     * @param row Row index (0-based)
+     * @param seatNum Seat number
+     * @param totalRows Total number of rows
+     * @param seatsPerRow Seats per row
+     * @return Seat type string
+     */
+    private static String determineSeatType(String layoutType, Integer row, Integer seatNum, Integer totalRows, Integer seatsPerRow) {
+        switch on layoutType {
+            when 'VIP' {
+                // VIP layout: front 3 rows are VIP, back row has wheelchair accessible seats
+                if (row < 3) {
+                    return 'VIP';
+                } else if (row == totalRows - 1 && (seatNum == 1 || seatNum == seatsPerRow)) {
+                    return 'Wheelchair';
+                } else {
+                    return 'Premium';
+                }
+            }
+            when 'IMAX' {
+                // IMAX layout: larger theater with more VIP seats
+                if (row < 4) {
+                    return 'VIP';
+                } else if (row < totalRows - 2) {
+                    return 'Premium';
+                } else if (row == totalRows - 1 && (seatNum == 1 || seatNum == seatsPerRow)) {
+                    return 'Wheelchair';
+                } else {
+                    return 'Standard';
+                }
+            }
+            when 'Premium' {
+                // Premium layout: front 2 rows VIP, middle rows Premium, back rows Standard
+                if (row < 2) {
+                    return 'VIP';
+                } else if (row < totalRows - 2) {
+                    return 'Premium';
+                } else if (row == totalRows - 1 && (seatNum == 1 || seatNum == seatsPerRow)) {
+                    return 'Wheelchair';
+                } else {
+                    return 'Standard';
+                }
+            }
+            when else { // Standard
+                // Standard layout: front row VIP, back row wheelchair accessible
+                if (row < 1) {
+                    return 'VIP';
+                } else if (row == totalRows - 1 && (seatNum == 1 || seatNum == seatsPerRow)) {
+                    return 'Wheelchair';
+                } else {
+                    return 'Standard';
+                }
+            }
+        }
     }
     
     /**

@@ -1,0 +1,236 @@
+.cancellation-container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 30px;
+    border-bottom: 1px solid #e0e0e0;
+    padding-bottom: 20px;
+}
+
+.header h2 {
+    color: #333;
+    margin: 0 0 10px 0;
+    font-size: 28px;
+}
+
+.header p {
+    color: #666;
+    margin: 0;
+    font-size: 16px;
+}
+
+.search-section {
+    margin-bottom: 30px;
+    display: flex;
+    gap: 15px;
+    align-items: end;
+}
+
+.form-group {
+    flex: 1;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+    color: #333;
+}
+
+.form-control {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+    transition: border-color 0.3s ease;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #0070d2;
+    box-shadow: 0 0 0 2px rgba(0, 112, 210, 0.2);
+}
+
+.btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.btn-primary {
+    background: #0070d2;
+    color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+    background: #005fb2;
+}
+
+.btn-secondary {
+    background: #f4f4f4;
+    color: #333;
+}
+
+.btn-secondary:hover:not(:disabled) {
+    background: #e0e0e0;
+}
+
+.btn-danger {
+    background: #dc3545;
+    color: white;
+}
+
+.btn-danger:hover:not(:disabled) {
+    background: #c82333;
+}
+
+.reservation-details {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.reservation-details h3 {
+    margin: 0 0 20px 0;
+    color: #333;
+    font-size: 20px;
+}
+
+.detail-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.detail-row:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+.label {
+    font-weight: 500;
+    color: #666;
+}
+
+.value {
+    color: #333;
+    font-weight: 500;
+}
+
+.status-confirmed {
+    color: #28a745;
+}
+
+.status-cancelled {
+    color: #dc3545;
+}
+
+.status-completed {
+    color: #6c757d;
+}
+
+.payment-paid {
+    color: #28a745;
+}
+
+.payment-pending {
+    color: #ffc107;
+}
+
+.payment-refunded {
+    color: #17a2b8;
+}
+
+.cancellation-warning,
+.cannot-cancel {
+    background: #fff3cd;
+    border: 1px solid #ffeaa7;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    display: flex;
+    gap: 15px;
+}
+
+.warning-icon {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    background: #ffc107;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 18px;
+}
+
+.warning-content h4 {
+    margin: 0 0 10px 0;
+    color: #856404;
+    font-size: 18px;
+}
+
+.warning-content p {
+    margin: 0 0 10px 0;
+    color: #856404;
+    line-height: 1.5;
+}
+
+.warning-content p:last-child {
+    margin-bottom: 0;
+}
+
+.cancel-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: flex-end;
+}
+
+@media (max-width: 480px) {
+    .cancellation-container {
+        margin: 10px;
+        padding: 15px;
+    }
+
+    .search-section {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .cancel-actions {
+        flex-direction: column;
+    }
+
+    .detail-row {
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .cancellation-warning,
+    .cannot-cancel {
+        flex-direction: column;
+        text-align: center;
+    }
+}

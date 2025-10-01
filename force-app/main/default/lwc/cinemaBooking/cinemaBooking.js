@@ -61,24 +61,32 @@ export default class CinemaBooking extends LightningElement {
     }
 
     handleShowtimeSelect(event) {
-        console.log('handleShowtimeSelect called', event);
+        console.log('=== CINEMA BOOKING DEBUG ===');
+        console.log('handleShowtimeSelect called with event:', event);
+        
         // Check if event comes from custom event (showtimeSelector component)
         if (event && event.detail && event.detail.showtime) {
             this.selectedShowtime = event.detail.showtime;
-            console.log('Selected showtime from event.detail:', this.selectedShowtime);
+            console.log('Showtime Selected from event.detail:', JSON.stringify(this.selectedShowtime));
+            console.log('Selected showtime ID:', this.selectedShowtime.Id);
             this.currentStep = 3;
         } 
         // Handle click event from inline showtime cards
         else if (event && event.currentTarget) {
             const showtimeId = event.currentTarget.dataset.id;
             const showtime = this.showtimes ? this.showtimes.find(st => st.Id === showtimeId) : null;
-            console.log('Selected showtime from click:', showtime);
+            console.log('Showtime Selected from click - ID:', showtimeId);
+            console.log('Found showtime:', JSON.stringify(showtime));
             if (showtime) {
                 this.selectedShowtime = showtime;
+                console.log('Showtime Selected from click:', JSON.stringify(this.selectedShowtime));
+                console.log('Selected showtime ID:', this.selectedShowtime.Id);
                 this.currentStep = 3;
             }
         }
-        console.log('Final selectedShowtime:', this.selectedShowtime);
+        console.log('Final selectedShowtime:', JSON.stringify(this.selectedShowtime));
+        console.log('Current step set to:', this.currentStep);
+        console.log('=== END CINEMA BOOKING DEBUG ===');
     }
 
     handleSeatSelection(event) {

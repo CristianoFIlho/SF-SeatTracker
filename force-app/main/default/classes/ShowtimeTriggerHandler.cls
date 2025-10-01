@@ -14,14 +14,14 @@ public with sharing class ShowtimeTriggerHandler {
     }
     
     /**
-     * @description Generate seats for newly created showtimes
+     * @description Generate seats for newly created showtimes using theater configuration
      * @param showtimes List of showtimes
      */
     private static void generateSeatsForShowtimes(List<Showtime__c> showtimes) {
         for (Showtime__c showtime : showtimes) {
             try {
-                // Generate 10x10 seat layout (100 seats)
-                SeatManagementService.generateSeats(showtime.Id, 10, 10);
+                // Generate seats using theater configuration
+                SeatManagementService.generateSeats(showtime.Id);
             } catch (Exception e) {
                 System.debug('Error generating seats for showtime ' + showtime.Id + ': ' + e.getMessage());
             }
