@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomTab xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Cinema Seat Booking Interface</description>
+    <flexiPage>Cinema_Booking_Page</flexiPage>
+    <label>Cinema Booking</label>
+    <motif>Custom9:Airplane</motif>
+</CustomTab>

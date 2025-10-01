@@ -5,6 +5,28 @@
     <hasActivationRequired>false</hasActivationRequired>
     <label>Cinema Reservation Admin</label>
     
+    <!-- Tab Settings -->
+    <tabSettings>
+        <tab>Cinema_Booking</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+    <tabSettings>
+        <tab>Movie__c</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+    <tabSettings>
+        <tab>Theater__c</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+    <tabSettings>
+        <tab>Showtime__c</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+    <tabSettings>
+        <tab>Reservation__c</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+    
     <!-- Object Permissions -->
     <objectPermissions>
         <allowCreate>true</allowCreate>

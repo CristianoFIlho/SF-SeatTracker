@@ -12,6 +12,7 @@
     <isNavPersonalizationDisabled>false</isNavPersonalizationDisabled>
     <label>Cinema Management</label>
     <navType>Standard</navType>
+    <tabs>Cinema_Booking</tabs>
     <tabs>Movie__c</tabs>
     <tabs>Theater__c</tabs>
     <tabs>Showtime__c</tabs>
