@@ -1,7 +1,7 @@
 <template>
     <lightning-card title="Select Your Seats" icon-name="custom:custom85">
         <div slot="actions">
-            <lightning-button label="Clear Selection" onclick={handleClearSelection} disabled={selectedCount}
+            <lightning-button label="Clear Selection" onclick={handleClearSelection}
                 icon-name="utility:clear"></lightning-button>
         </div>
 
@@ -63,7 +63,7 @@
                             <div class="seats-container">
                                 <template for:each={row.seats} for:item="seat">
                                     <button key={seat.Id} class={seat.cssClass} data-id={seat.Id}
-                                        onclick={handleSeatClick} disabled={seat.Status__c} title={seat.Name}>
+                                        onclick={handleSeatClick} title={seat.Name}>
                                         {seat.Number__c}
                                     </button>
                                 </template>
