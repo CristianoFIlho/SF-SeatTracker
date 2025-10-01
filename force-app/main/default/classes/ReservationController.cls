@@ -6,6 +6,27 @@
 public with sharing class ReservationController {
     
     /**
+     * @description Get active movies
+     * @return List of active Movie__c records
+     */
+    @AuraEnabled(cacheable=true)
+    public static List<Movie__c> getActiveMovies() {
+        try {
+            return [
+                SELECT Id, Name, Synopsis__c, Poster_URL__c, Release_Date__c,
+                       Duration_Minutes__c, Rating__c, Genre__c, Director__c,
+                       Cast__c, Trailer_URL__c, Is_Active__c
+                FROM Movie__c
+                WHERE Is_Active__c = true
+                ORDER BY Release_Date__c DESC
+                LIMIT 50
+            ];
+        } catch (Exception e) {
+            throw new AuraHandledException('Error fetching movies: ' + e.getMessage());
+        }
+    }
+    
+    /**
      * @description Get available showtimes for a movie
      * @param movieId Movie record ID
      * @param selectedDate Date to search showtimes
@@ -300,4 +321,3 @@ public with sharing class ReservationController {
      */
     public class ReservationException extends Exception {}
 }
-
