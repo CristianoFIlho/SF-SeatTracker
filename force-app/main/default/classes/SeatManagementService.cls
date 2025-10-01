@@ -145,7 +145,7 @@ public with sharing class SeatManagementService {
         
         try {
             AggregateResult[] results = [
-                SELECT Status__c, COUNT(Id) count
+                SELECT Status__c, COUNT(Id) seatCount
                 FROM Seat__c
                 WHERE Showtime__c = :showtimeId
                 GROUP BY Status__c
@@ -159,7 +159,7 @@ public with sharing class SeatManagementService {
             
             for (AggregateResult ar : results) {
                 String status = String.valueOf(ar.get('Status__c'));
-                Integer count = Integer.valueOf(ar.get('count'));
+                Integer count = Integer.valueOf(ar.get('seatCount'));
                 stats.put(status.toLowerCase(), count);
                 stats.put('total', stats.get('total') + count);
             }

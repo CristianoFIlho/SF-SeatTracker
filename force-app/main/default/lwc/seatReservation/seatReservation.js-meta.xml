@@ -7,10 +7,4 @@
         <target>lightning__RecordPage</target>
         <target>lightningCommunity__Page</target>
     </targets>
-    <targetConfigs>
-        <targetConfig targets="lightning__AppPage,lightning__RecordPage,lightningCommunity__Page">
-            <property name="showtimeId" type="String" label="Showtime ID" required="true"/>
-            <property name="ticketPrice" type="Integer" default="15" label="Ticket Price"/>
-        </targetConfig>
-    </targetConfigs>
 </LightningComponentBundle>

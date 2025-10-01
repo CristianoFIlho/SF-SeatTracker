@@ -9,10 +9,4 @@
         <target>lightning__RecordPage</target>
         <target>lightningCommunity__Page</target>
     </targets>
-    <targetConfigs>
-        <targetConfig targets="lightning__AppPage,lightning__RecordPage,lightningCommunity__Page">
-            <property name="movieId" type="String" label="Movie ID" required="true"/>
-            <property name="movieName" type="String" label="Movie Name" required="false"/>
-        </targetConfig>
-    </targetConfigs>
 </LightningComponentBundle>

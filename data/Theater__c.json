@@ -1,0 +1,39 @@
+{
+  "records": [
+    {
+      "attributes": {
+        "type": "Theater__c",
+        "referenceId": "TheaterRef1"
+      },
+      "Name": "Cinemark Downtown",
+      "Theater_API_ID__c": "THEATER001",
+      "Address__c": "123 Main Street",
+      "City__c": "São Paulo",
+      "State__c": "SP",
+      "Postal_Code__c": "01310-100",
+      "Country__c": "Brazil",
+      "Location__Latitude__s": -23.5505,
+      "Location__Longitude__s": -46.6333,
+      "Total_Screens__c": 8,
+      "Is_Active__c": true
+    },
+    {
+      "attributes": {
+        "type": "Theater__c",
+        "referenceId": "TheaterRef2"
+      },
+      "Name": "UCI Cinemas Shopping",
+      "Theater_API_ID__c": "THEATER002",
+      "Address__c": "456 Shopping Avenue",
+      "City__c": "São Paulo",
+      "State__c": "SP",
+      "Postal_Code__c": "01310-200",
+      "Country__c": "Brazil",
+      "Location__Latitude__s": -23.5489,
+      "Location__Longitude__s": -46.6388,
+      "Total_Screens__c": 12,
+      "Is_Active__c": true
+    }
+  ]
+}
+

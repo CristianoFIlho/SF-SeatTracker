@@ -1,0 +1,59 @@
+{
+  "records": [
+    {
+      "attributes": {
+        "type": "Showtime__c",
+        "referenceId": "ShowtimeRef1"
+      },
+      "Movie__c": "@MovieRef1",
+      "Theater__c": "@TheaterRef1",
+      "Session_Date__c": "2025-10-15",
+      "Session_Time__c": "14:30:00.000Z",
+      "Screen_Number__c": 1,
+      "Total_Seats__c": 100,
+      "Reserved_Seats__c": 0,
+      "Ticket_Price__c": 25.00,
+      "Is_3D__c": false,
+      "Is_IMAX__c": false,
+      "Language__c": "English",
+      "Status__c": "Scheduled"
+    },
+    {
+      "attributes": {
+        "type": "Showtime__c",
+        "referenceId": "ShowtimeRef2"
+      },
+      "Movie__c": "@MovieRef1",
+      "Theater__c": "@TheaterRef1",
+      "Session_Date__c": "2025-10-15",
+      "Session_Time__c": "19:00:00.000Z",
+      "Screen_Number__c": 1,
+      "Total_Seats__c": 100,
+      "Reserved_Seats__c": 0,
+      "Ticket_Price__c": 30.00,
+      "Is_3D__c": true,
+      "Is_IMAX__c": false,
+      "Language__c": "English",
+      "Status__c": "Scheduled"
+    },
+    {
+      "attributes": {
+        "type": "Showtime__c",
+        "referenceId": "ShowtimeRef3"
+      },
+      "Movie__c": "@MovieRef2",
+      "Theater__c": "@TheaterRef2",
+      "Session_Date__c": "2025-10-15",
+      "Session_Time__c": "15:00:00.000Z",
+      "Screen_Number__c": 2,
+      "Total_Seats__c": 100,
+      "Reserved_Seats__c": 0,
+      "Ticket_Price__c": 28.00,
+      "Is_3D__c": false,
+      "Is_IMAX__c": true,
+      "Language__c": "English",
+      "Status__c": "Scheduled"
+    }
+  ]
+}
+

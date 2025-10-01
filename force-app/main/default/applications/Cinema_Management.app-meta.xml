@@ -7,11 +7,9 @@
     </brand>
     <description>Cinema seat reservation and management application</description>
     <formFactors>Small</formFactors>
-    <formFactors>Medium</formFactors>
     <formFactors>Large</formFactors>
     <isNavAutoTempTabsDisabled>false</isNavAutoTempTabsDisabled>
     <isNavPersonalizationDisabled>false</isNavPersonalizationDisabled>
-    <isServiceCloudConsole>false</isServiceCloudConsole>
     <label>Cinema Management</label>
     <navType>Standard</navType>
     <tabs>Movie__c</tabs>
@@ -21,5 +19,4 @@
     <tabs>standard-Dashboard</tabs>
     <tabs>standard-report</tabs>
     <uiType>Lightning</uiType>
-    <utilityBar>Cinema_Management_UtilityBar</utilityBar>
 </CustomApplication>

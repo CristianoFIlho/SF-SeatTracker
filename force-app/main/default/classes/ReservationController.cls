@@ -66,7 +66,7 @@ public with sharing class ReservationController {
         try {
             return [
                 SELECT Id, Name, Row__c, Number__c, Status__c, Seat_Type__c, 
-                       Is_Available__c, Showtime__c, Reservation__c
+                       Showtime__c, Reservation__c
                 FROM Seat__c
                 WHERE Showtime__c = :showtimeId
                 ORDER BY Row__c ASC, Number__c ASC
@@ -112,7 +112,7 @@ public with sharing class ReservationController {
             
             // Get showtime details
             Showtime__c showtime = [
-                SELECT Id, Movie__c, Theater__c, Ticket_Price__c, Reserved_Seats__c, 
+                SELECT Id, Movie__c, Ticket_Price__c, Reserved_Seats__c, 
                        Available_Seats__c, Total_Seats__c
                 FROM Showtime__c
                 WHERE Id = :showtimeId
@@ -257,8 +257,7 @@ public with sharing class ReservationController {
         Reservation__c reservation = [
             SELECT Id, Name, Confirmation_Code__c, Customer_Name__c, Customer_Email__c,
                    Seat_Numbers__c, Number_of_Seats__c, Total_Amount__c,
-                   Movie__r.Name, Showtime__r.Session_DateTime__c, Showtime__r.Theater__r.Name,
-                   Showtime__r.Theater__r.Full_Address__c
+                   Movie__r.Name, Showtime__r.Session_DateTime__c
             FROM Reservation__c
             WHERE Id = :reservationId
         ];
@@ -271,8 +270,6 @@ public with sharing class ReservationController {
         emailBody += 'Your reservation has been confirmed!\n\n';
         emailBody += 'Confirmation Code: ' + reservation.Confirmation_Code__c + '\n';
         emailBody += 'Movie: ' + reservation.Movie__r.Name + '\n';
-        emailBody += 'Theater: ' + reservation.Showtime__r.Theater__r.Name + '\n';
-        emailBody += 'Address: ' + reservation.Showtime__r.Theater__r.Full_Address__c + '\n';
         emailBody += 'Showtime: ' + reservation.Showtime__r.Session_DateTime__c.format() + '\n';
         emailBody += 'Seats: ' + reservation.Seat_Numbers__c + '\n';
         emailBody += 'Number of Tickets: ' + reservation.Number_of_Seats__c + '\n';

@@ -12,14 +12,19 @@
     "test:unit:debug": "sfdx-lwc-jest --debug",
     "prettier": "prettier --write \"**/*.{cls,cmp,component,css,html,js,json,md,page,trigger,xml,yaml,yml}\"",
     "prettier:verify": "prettier --check \"**/*.{cls,cmp,component,css,html,js,json,md,page,trigger,xml,yaml,yml}\"",
-    "deploy:dev": "sfdx force:source:deploy -p force-app/main/default -u DevOrg",
-    "deploy:check": "sfdx force:source:deploy -p force-app/main/default --checkonly -u DevOrg",
-    "test:apex": "sfdx force:apex:test:run -l RunLocalTests -w 10 -r human",
-    "open:org": "sfdx force:org:open",
-    "create:scratch": "sfdx force:org:create -f config/project-scratch-def.json -a SeatTrackerOrg -s -d 30",
-    "push:source": "sfdx force:source:push -u SeatTrackerOrg",
-    "assign:permset": "sfdx force:user:permset:assign -n Cinema_Reservation_Admin",
-    "import:data": "sfdx force:data:tree:import -p data/sample-data-plan.json"
+    "deploy": "sf project deploy start -d force-app/main/default",
+    "deploy:check": "sf project deploy start -d force-app/main/default --dry-run",
+    "deploy:validate": "sf project deploy start -d force-app/main/default -l RunLocalTests --dry-run",
+    "test:apex": "sf apex run test -l RunLocalTests -w 10",
+    "test:apex:coverage": "sf apex run test --code-coverage",
+    "open:org": "sf org open",
+    "org:display": "sf org display",
+    "org:list": "sf org list",
+    "create:scratch": "sf org create scratch -f config/project-scratch-def.json -a SeatTrackerOrg -d 30 -y",
+    "assign:permset": "sf org assign permset -n Cinema_Reservation_Admin",
+    "import:data": "sf data import tree --plan data/sample-data-plan.json",
+    "tail:log": "sf apex tail log",
+    "login": "sf org login web --alias DevOrg --set-default"
   },
   "devDependencies": {
     "@lwc/eslint-plugin-lwc": "^1.7.2",
@@ -39,4 +44,3 @@
     "npm": "10.2.3"
   }
 }
-
