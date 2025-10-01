@@ -1,141 +1,20 @@
-{
-  "records": [
-    {
-      "attributes": {
-        "type": "Movie__c",
-        "referenceId": "MovieRef1"
-      },
-      "Name": "The Matrix Resurrections",
-      "Movie_API_ID__c": "SAMPLE001",
-      "Synopsis__c": "Return to a world of two realities: one, everyday life; the other, what lies behind it.",
-      "Duration_Minutes__c": 148,
-      "Rating__c": "R",
-      "Genre__c": "Sci-Fi;Action",
-      "Director__c": "Lana Wachowski",
-      "Cast__c": "Keanu Reeves, Carrie-Anne Moss, Yahya Abdul-Mateen II",
-      "Release_Date__c": "2021-12-22",
-      "Is_Active__c": true
-    },
-    {
-      "attributes": {
-        "type": "Movie__c",
-        "referenceId": "MovieRef2"
-      },
-      "Name": "Spider-Man: No Way Home",
-      "Movie_API_ID__c": "SAMPLE002",
-      "Synopsis__c": "With Spider-Man's identity now revealed, Peter asks Doctor Strange for help.",
-      "Duration_Minutes__c": 148,
-      "Rating__c": "PG-13",
-      "Genre__c": "Action;Adventure",
-      "Director__c": "Jon Watts",
-      "Cast__c": "Tom Holland, Zendaya, Benedict Cumberbatch",
-      "Release_Date__c": "2021-12-17",
-      "Is_Active__c": true
-    },
-    {
-      "attributes": {
-        "type": "Movie__c",
-        "referenceId": "MovieRef3"
-      },
-      "Name": "Dune",
-      "Movie_API_ID__c": "SAMPLE003",
-      "Synopsis__c": "A noble family becomes embroiled in a war for control over the galaxy's most valuable asset.",
-      "Duration_Minutes__c": 155,
-      "Rating__c": "PG-13",
-      "Genre__c": "Sci-Fi;Adventure;Drama",
-      "Director__c": "Denis Villeneuve",
-      "Cast__c": "Timothée Chalamet, Rebecca Ferguson, Zendaya",
-      "Release_Date__c": "2021-10-22",
-      "Is_Active__c": true
-    },
-    {
-      "attributes": {
-        "type": "Theater__c",
-        "referenceId": "TheaterRef1"
-      },
-      "Name": "Cinemark Downtown",
-      "Theater_API_ID__c": "THEATER001",
-      "Address__c": "123 Main Street",
-      "City__c": "São Paulo",
-      "State__c": "SP",
-      "Postal_Code__c": "01310-100",
-      "Country__c": "Brazil",
-      "Location__Latitude__s": -23.5505,
-      "Location__Longitude__s": -46.6333,
-      "Total_Screens__c": 8,
-      "Is_Active__c": true
-    },
-    {
-      "attributes": {
-        "type": "Theater__c",
-        "referenceId": "TheaterRef2"
-      },
-      "Name": "UCI Cinemas Shopping",
-      "Theater_API_ID__c": "THEATER002",
-      "Address__c": "456 Shopping Avenue",
-      "City__c": "São Paulo",
-      "State__c": "SP",
-      "Postal_Code__c": "01310-200",
-      "Country__c": "Brazil",
-      "Location__Latitude__s": -23.5489,
-      "Location__Longitude__s": -46.6388,
-      "Total_Screens__c": 12,
-      "Is_Active__c": true
-    },
-    {
-      "attributes": {
-        "type": "Showtime__c",
-        "referenceId": "ShowtimeRef1"
-      },
-      "Movie__c": "@MovieRef1",
-      "Theater__c": "@TheaterRef1",
-      "Session_Date__c": "2025-10-15",
-      "Session_Time__c": "14:30:00.000Z",
-      "Screen_Number__c": 1,
-      "Total_Seats__c": 100,
-      "Reserved_Seats__c": 0,
-      "Ticket_Price__c": 25.00,
-      "Is_3D__c": false,
-      "Is_IMAX__c": false,
-      "Language__c": "English",
-      "Status__c": "Scheduled"
-    },
-    {
-      "attributes": {
-        "type": "Showtime__c",
-        "referenceId": "ShowtimeRef2"
-      },
-      "Movie__c": "@MovieRef1",
-      "Theater__c": "@TheaterRef1",
-      "Session_Date__c": "2025-10-15",
-      "Session_Time__c": "19:00:00.000Z",
-      "Screen_Number__c": 1,
-      "Total_Seats__c": 100,
-      "Reserved_Seats__c": 0,
-      "Ticket_Price__c": 30.00,
-      "Is_3D__c": true,
-      "Is_IMAX__c": false,
-      "Language__c": "English",
-      "Status__c": "Scheduled"
-    },
-    {
-      "attributes": {
-        "type": "Showtime__c",
-        "referenceId": "ShowtimeRef3"
-      },
-      "Movie__c": "@MovieRef2",
-      "Theater__c": "@TheaterRef2",
-      "Session_Date__c": "2025-10-15",
-      "Session_Time__c": "15:00:00.000Z",
-      "Screen_Number__c": 2,
-      "Total_Seats__c": 100,
-      "Reserved_Seats__c": 0,
-      "Ticket_Price__c": 28.00,
-      "Is_3D__c": false,
-      "Is_IMAX__c": true,
-      "Language__c": "English",
-      "Status__c": "Scheduled"
-    }
-  ]
-}
-
+[
+  {
+    "sobject": "Movie__c",
+    "saveRefs": true,
+    "resolveRefs": false,
+    "files": ["Movie__c.json"]
+  },
+  {
+    "sobject": "Theater__c",
+    "saveRefs": true,
+    "resolveRefs": false,
+    "files": ["Theater__c.json"]
+  },
+  {
+    "sobject": "Showtime__c",
+    "saveRefs": true,
+    "resolveRefs": true,
+    "files": ["Showtime__c.json"]
+  }
+]

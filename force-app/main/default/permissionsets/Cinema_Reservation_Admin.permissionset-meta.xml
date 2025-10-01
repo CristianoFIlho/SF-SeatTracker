@@ -5,6 +5,28 @@
     <hasActivationRequired>false</hasActivationRequired>
     <label>Cinema Reservation Admin</label>
     
+    <!-- Tab Settings -->
+    <tabSettings>
+        <tab>Cinema_Booking</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+    <tabSettings>
+        <tab>Movie__c</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+    <tabSettings>
+        <tab>Theater__c</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+    <tabSettings>
+        <tab>Showtime__c</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+    <tabSettings>
+        <tab>Reservation__c</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+    
     <!-- Object Permissions -->
     <objectPermissions>
         <allowCreate>true</allowCreate>
@@ -144,14 +166,211 @@
         <readable>true</readable>
     </fieldPermissions>
     
-    <!-- User Permissions -->
-    <userPermissions>
-        <enabled>true</enabled>
-        <name>ViewSetup</name>
-    </userPermissions>
+    <!-- Field Permissions for Theater__c -->
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Theater__c.Theater_API_ID__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
     
-    <userPermissions>
-        <enabled>true</enabled>
-        <name>ManageUsers</name>
-    </userPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Theater__c.Address__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Theater__c.City__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Theater__c.State__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Theater__c.Postal_Code__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Theater__c.Country__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Theater__c.Location__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Theater__c.Phone__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Theater__c.Total_Screens__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Theater__c.Is_Active__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    
+    <!-- Field Permissions for Showtime__c -->
+    <!-- Movie__c (Master-Detail), Session_Date__c, and Session_Time__c are required fields, no FLS needed -->
+    
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Showtime__c.Theater__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Showtime__c.Showtime_API_ID__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Showtime__c.Screen_Number__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Showtime__c.Total_Seats__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Showtime__c.Reserved_Seats__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Showtime__c.Ticket_Price__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Showtime__c.Is_3D__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Showtime__c.Is_IMAX__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Showtime__c.Language__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Showtime__c.Subtitles__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Showtime__c.Status__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    
+    <!-- Field Permissions for Reservation__c -->
+    <!-- Customer_Name__c and Customer_Email__c are required fields, no FLS needed -->
+    
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Reservation__c.Customer_Phone__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Reservation__c.Number_of_Seats__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Reservation__c.Seat_Numbers__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Reservation__c.Total_Amount__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Reservation__c.Status__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Reservation__c.Confirmation_Code__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Reservation__c.Payment_Status__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Reservation__c.QR_Code__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Reservation__c.Notes__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    
+    <!-- Field Permissions for Seat__c -->
+    <!-- Row__c and Number__c are required fields, no FLS needed -->
+    
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Seat__c.Status__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Seat__c.Seat_Type__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Seat__c.Is_Available__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
 </PermissionSet>

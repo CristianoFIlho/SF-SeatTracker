@@ -25,7 +25,6 @@ private class SeatManagementServiceTest {
         
         Showtime__c showtime = new Showtime__c(
             Movie__c = movie.Id,
-            Theater__c = theater.Id,
             Session_Date__c = Date.today().addDays(1),
             Session_Time__c = Time.newInstance(14, 30, 0, 0),
             Total_Seats__c = 100,
@@ -62,7 +61,6 @@ private class SeatManagementServiceTest {
         
         Showtime__c newShowtime = new Showtime__c(
             Movie__c = movie.Id,
-            Theater__c = theater.Id,
             Session_Date__c = Date.today().addDays(2),
             Session_Time__c = Time.newInstance(19, 0, 0, 0),
             Total_Seats__c = 50,

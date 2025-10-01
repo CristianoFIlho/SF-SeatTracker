@@ -1,0 +1,53 @@
+{
+  "records": [
+    {
+      "attributes": {
+        "type": "Movie__c",
+        "referenceId": "MovieRef1"
+      },
+      "Name": "The Matrix Resurrections",
+      "Movie_API_ID__c": "SAMPLE001",
+      "Synopsis__c": "Return to a world of two realities: one, everyday life; the other, what lies behind it.",
+      "Duration_Minutes__c": 148,
+      "Rating__c": "R",
+      "Genre__c": "Sci-Fi;Action",
+      "Director__c": "Lana Wachowski",
+      "Cast__c": "Keanu Reeves, Carrie-Anne Moss, Yahya Abdul-Mateen II",
+      "Release_Date__c": "2021-12-22",
+      "Is_Active__c": true
+    },
+    {
+      "attributes": {
+        "type": "Movie__c",
+        "referenceId": "MovieRef2"
+      },
+      "Name": "Spider-Man: No Way Home",
+      "Movie_API_ID__c": "SAMPLE002",
+      "Synopsis__c": "With Spider-Man's identity now revealed, Peter asks Doctor Strange for help.",
+      "Duration_Minutes__c": 148,
+      "Rating__c": "PG-13",
+      "Genre__c": "Action;Adventure",
+      "Director__c": "Jon Watts",
+      "Cast__c": "Tom Holland, Zendaya, Benedict Cumberbatch",
+      "Release_Date__c": "2021-12-17",
+      "Is_Active__c": true
+    },
+    {
+      "attributes": {
+        "type": "Movie__c",
+        "referenceId": "MovieRef3"
+      },
+      "Name": "Dune",
+      "Movie_API_ID__c": "SAMPLE003",
+      "Synopsis__c": "A noble family becomes embroiled in a war for control over the galaxy's most valuable asset.",
+      "Duration_Minutes__c": 155,
+      "Rating__c": "PG-13",
+      "Genre__c": "Sci-Fi;Adventure;Drama",
+      "Director__c": "Denis Villeneuve",
+      "Cast__c": "Timothée Chalamet, Rebecca Ferguson, Zendaya",
+      "Release_Date__c": "2021-10-22",
+      "Is_Active__c": true
+    }
+  ]
+}
+

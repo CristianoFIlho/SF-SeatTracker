@@ -32,7 +32,6 @@ private class ShowtimeTriggerHandlerTest {
         Test.startTest();
         Showtime__c showtime = new Showtime__c(
             Movie__c = movie.Id,
-            Theater__c = theater.Id,
             Session_Date__c = Date.today().addDays(1),
             Session_Time__c = Time.newInstance(14, 30, 0, 0),
             Total_Seats__c = 100,
@@ -57,7 +56,6 @@ private class ShowtimeTriggerHandlerTest {
         for (Integer i = 0; i < 3; i++) {
             showtimes.add(new Showtime__c(
                 Movie__c = movie.Id,
-                Theater__c = theater.Id,
                 Session_Date__c = Date.today().addDays(i + 1),
                 Session_Time__c = Time.newInstance(14, 30, 0, 0),
                 Total_Seats__c = 100,

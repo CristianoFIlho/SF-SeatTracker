@@ -21,17 +21,18 @@
 
         <!-- Step 2: Showtime Selection -->
         <template if:true={isStep2}>
-            <lightning-card title="Available Showtimes" icon-name="custom:custom58">
-                <div class="slds-p-around_medium">
-                    <div class="movie-header slds-m-bottom_medium">
-                        <h3 class="slds-text-heading_small">
-                            <lightning-icon icon-name="custom:custom48" size="small"></lightning-icon>
-                            {selectedMovie.Name}
-                        </h3>
-                        <p class="slds-text-body_small slds-text-color_weak">
-                            {selectedMovie.Duration_Minutes__c} minutes • {selectedMovie.Rating__c}
-                        </p>
-                    </div>
+            <template if:true={selectedMovie}>
+                <lightning-card title="Available Showtimes" icon-name="custom:custom58">
+                    <div class="slds-p-around_medium">
+                        <div class="movie-header slds-m-bottom_medium">
+                            <h3 class="slds-text-heading_small">
+                                <lightning-icon icon-name="custom:custom48" size="small"></lightning-icon>
+                                {selectedMovie.Name}
+                            </h3>
+                            <p class="slds-text-body_small slds-text-color_weak">
+                                {selectedMovie.Duration_Minutes__c} minutes • {selectedMovie.Rating__c}
+                            </p>
+                        </div>
 
                     <lightning-input type="date" label="Select Date" value={selectedDate} min={selectedDate}
                         class="slds-m-bottom_medium"></lightning-input>
@@ -67,12 +68,15 @@
                     </div>
                 </div>
             </lightning-card>
+            </template>
         </template>
 
         <!-- Step 3: Seat Selection -->
         <template if:true={isStep3}>
-            <c-seat-reservation showtime-id={selectedShowtime.Id} ticket-price={selectedShowtime.Ticket_Price__c}
-                onseatselection={handleSeatSelection}></c-seat-reservation>
+            <template if:true={selectedShowtime}>
+                <c-seat-reservation showtime-id={selectedShowtime.Id} ticket-price={selectedShowtime.Ticket_Price__c}
+                    onseatselection={handleSeatSelection}></c-seat-reservation>
+            </template>
         </template>
 
         <!-- Navigation Buttons -->
@@ -86,17 +90,21 @@
                         class="slds-m-right_small"></lightning-button>
                 </template>
 
-                <lightning-button label={nextButtonLabel} onclick={handleNext} variant="brand" disabled={canProceed}
+                <lightning-button label={nextButtonLabel} onclick={handleNext} variant="brand"
                     icon-name="utility:forward" icon-position="right"></lightning-button>
             </div>
         </div>
 
         <!-- Confirmation Modal -->
         <template if:true={showConfirmationModal}>
-            <c-confirmation-modal showtime-id={selectedShowtime.Id} movie-name={selectedMovie.Name}
-                theater-name={selectedShowtime.Theater__r.Name} session-date-time={sessionDateTime}
-                seat-numbers={seatNumbers} total-amount={totalPrice} selected-seat-ids={selectedSeats}
-                onclose={handleCloseModal} onreservationsuccess={handleReservationSuccess}></c-confirmation-modal>
+            <template if:true={selectedShowtime}>
+                <template if:true={selectedMovie}>
+                    <c-confirmation-modal showtime-id={selectedShowtime.Id} movie-name={selectedMovie.Name}
+                        theater-name={selectedShowtime.Theater__r.Name} session-date-time={sessionDateTime}
+                        seat-numbers={seatNumbers} total-amount={totalPrice} selected-seat-ids={selectedSeats}
+                        onclose={handleCloseModal} onreservationsuccess={handleReservationSuccess}></c-confirmation-modal>
+                </template>
+            </template>
         </template>
     </div>
 </template>
