@@ -13,6 +13,15 @@ export default class SeatReservation extends LightningElement {
     
     MAX_SEATS = 10;
 
+    connectedCallback() {
+        console.log('SeatReservation connectedCallback - showtimeId:', this.showtimeId);
+        console.log('SeatReservation connectedCallback - ticketPrice:', this.ticketPrice);
+    }
+
+    renderedCallback() {
+        console.log('SeatReservation renderedCallback - showtimeId:', this.showtimeId);
+    }
+
     @wire(getSeatsForShowtime, { showtimeId: '$showtimeId' })
     wiredSeats({ error, data }) {
         console.log('Seat wire called with showtimeId:', this.showtimeId);
@@ -29,6 +38,8 @@ export default class SeatReservation extends LightningElement {
             this.error = error;
             const errorMessage = error.body ? error.body.message : JSON.stringify(error);
             this.showToast('Error', 'Error loading seats: ' + errorMessage, 'error');
+        } else {
+            console.log('Seat wire called but no data or error yet');
         }
     }
 

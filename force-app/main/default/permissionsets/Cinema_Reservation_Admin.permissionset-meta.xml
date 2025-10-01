@@ -367,4 +367,10 @@
         <field>Seat__c.Seat_Type__c</field>
         <readable>true</readable>
     </fieldPermissions>
+    
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Seat__c.Is_Available__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
 </PermissionSet>
