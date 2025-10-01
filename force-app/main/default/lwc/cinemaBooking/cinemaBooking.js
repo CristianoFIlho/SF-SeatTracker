@@ -6,6 +6,7 @@ export default class CinemaBooking extends LightningElement {
     @track selectedMovie = null;
     @track selectedShowtime = null;
     @track selectedSeats = [];
+    @track showtimes = [];
     @track totalPrice = 0;
     @track showConfirmationModal = false;
     @track selectedDate = this.getTomorrowDate();
@@ -60,9 +61,19 @@ export default class CinemaBooking extends LightningElement {
     }
 
     handleShowtimeSelect(event) {
+        // Check if event comes from custom event (showtimeSelector component)
         if (event && event.detail && event.detail.showtime) {
             this.selectedShowtime = event.detail.showtime;
             this.currentStep = 3;
+        } 
+        // Handle click event from inline showtime cards
+        else if (event && event.currentTarget) {
+            const showtimeId = event.currentTarget.dataset.id;
+            const showtime = this.showtimes ? this.showtimes.find(st => st.Id === showtimeId) : null;
+            if (showtime) {
+                this.selectedShowtime = showtime;
+                this.currentStep = 3;
+            }
         }
     }
 
