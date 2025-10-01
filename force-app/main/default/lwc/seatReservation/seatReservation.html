@@ -1,0 +1,106 @@
+<template>
+    <lightning-card title="Select Your Seats" icon-name="custom:custom85">
+        <div slot="actions">
+            <lightning-button label="Clear Selection" onclick={handleClearSelection} disabled={selectedCount}
+                icon-name="utility:clear"></lightning-button>
+        </div>
+
+        <div class="slds-p-around_medium">
+            <!-- Legend -->
+            <div class="legend slds-m-bottom_medium">
+                <div class="legend-item">
+                    <div class="seat-example available"></div>
+                    <span>Available</span>
+                </div>
+                <div class="legend-item">
+                    <div class="seat-example selected"></div>
+                    <span>Selected</span>
+                </div>
+                <div class="legend-item">
+                    <div class="seat-example reserved"></div>
+                    <span>Reserved</span>
+                </div>
+                <div class="legend-item">
+                    <div class="seat-example vip"></div>
+                    <span>VIP</span>
+                </div>
+                <div class="legend-item">
+                    <div class="seat-example wheelchair"></div>
+                    <span>Wheelchair</span>
+                </div>
+            </div>
+
+            <!-- Selection Summary -->
+            <template if:true={selectedCount}>
+                <div class="selection-summary slds-box slds-theme_success slds-m-bottom_medium">
+                    <div class="slds-grid slds-grid_align-spread">
+                        <div class="slds-col">
+                            <p class="slds-text-heading_small">
+                                <lightning-icon icon-name="utility:check" size="x-small"></lightning-icon>
+                                {selectedCount} seat(s) selected
+                            </p>
+                            <p class="slds-text-body_small">Seats: {selectedSeatNumbers}</p>
+                        </div>
+                        <div class="slds-col slds-text-align_right">
+                            <p class="slds-text-heading_medium">${totalPrice}</p>
+                            <p class="slds-text-body_small">Total Price</p>
+                        </div>
+                    </div>
+                </div>
+            </template>
+
+            <!-- Screen -->
+            <div class="screen-container slds-m-bottom_large">
+                <div class="screen">SCREEN</div>
+            </div>
+
+            <!-- Seat Grid -->
+            <template if:true={hasSeats}>
+                <div class="seat-map">
+                    <template for:each={seatRows} for:item="row">
+                        <div key={row.key} class="seat-row">
+                            <div class="row-label">{row.label}</div>
+                            <div class="seats-container">
+                                <template for:each={row.seats} for:item="seat">
+                                    <button key={seat.Id} class={seat.cssClass} data-id={seat.Id}
+                                        onclick={handleSeatClick} disabled={seat.Status__c} title={seat.Name}>
+                                        {seat.Number__c}
+                                    </button>
+                                </template>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </template>
+
+            <!-- Loading -->
+            <template if:true={isLoading}>
+                <div class="slds-is-relative" style="height: 300px;">
+                    <lightning-spinner alternative-text="Loading seats..." size="medium"></lightning-spinner>
+                </div>
+            </template>
+
+            <!-- No Seats -->
+            <template if:false={hasSeats}>
+                <template if:false={isLoading}>
+                    <div class="slds-text-align_center slds-p-around_large">
+                        <lightning-icon icon-name="utility:warning" size="large"></lightning-icon>
+                        <p class="slds-m-top_medium">No seats available for this showtime.</p>
+                    </div>
+                </template>
+            </template>
+
+            <!-- Error -->
+            <template if:true={error}>
+                <div class="slds-box slds-theme_error slds-m-top_medium">
+                    <p>{error.body.message}</p>
+                </div>
+            </template>
+
+            <!-- Info Message -->
+            <div class="slds-text-align_center slds-m-top_medium slds-text-color_weak">
+                <p>Maximum {MAX_SEATS} seats per reservation</p>
+            </div>
+        </div>
+    </lightning-card>
+</template>

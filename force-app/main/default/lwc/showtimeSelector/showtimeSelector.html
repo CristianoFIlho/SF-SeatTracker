@@ -1,0 +1,126 @@
+<template>
+    <lightning-card title="Available Showtimes" icon-name="custom:custom58">
+        <div slot="actions">
+            <lightning-button label="Refresh" icon-name="utility:refresh" onclick={handleRefresh}></lightning-button>
+        </div>
+
+        <div class="slds-p-around_medium">
+            <!-- Movie Info Header -->
+            <div class="movie-header slds-m-bottom_medium">
+                <h3 class="slds-text-heading_small">
+                    <lightning-icon icon-name="custom:custom48" size="small"></lightning-icon>
+                    {movieName}
+                </h3>
+            </div>
+
+            <!-- Date Selector -->
+            <div class="slds-grid slds-gutters slds-m-bottom_medium">
+                <div class="slds-col slds-size_1-of-2">
+                    <lightning-input type="date" label="Select Date" value={selectedDate} min={minDate} max={maxDate}
+                        onchange={handleDateChange} required></lightning-input>
+                </div>
+            </div>
+
+            <!-- Map View -->
+            <template if:true={hasMap}>
+                <div class="map-container slds-m-bottom_medium">
+                    <lightning-map map-markers={mapMarkers} zoom-level="12" list-view="visible"></lightning-map>
+                </div>
+            </template>
+
+            <!-- Loading -->
+            <template if:true={isLoading}>
+                <div class="slds-is-relative" style="height: 200px;">
+                    <lightning-spinner alternative-text="Loading showtimes..." size="medium"></lightning-spinner>
+                </div>
+            </template>
+
+            <!-- Showtimes Grouped by Theater -->
+            <template if:true={hasShowtimes}>
+                <div class="showtimes-container">
+                    <template for:each={groupedShowtimes} for:item="group">
+                        <div key={group.key} class="theater-group">
+                            <!-- Theater Header -->
+                            <div class="theater-header">
+                                <div class="theater-info">
+                                    <h4 class="theater-name">
+                                        <lightning-icon icon-name="custom:custom18" size="x-small"></lightning-icon>
+                                        {group.theater.Name}
+                                    </h4>
+                                    <p class="theater-address">
+                                        <lightning-icon icon-name="utility:location" size="xx-small"></lightning-icon>
+                                        {group.theater.Full_Address__c}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- Showtime Slots -->
+                            <div class="showtime-slots">
+                                <template for:each={group.showtimes} for:item="showtime">
+                                    <div key={showtime.Id} class="showtime-card" data-id={showtime.Id}
+                                        onclick={handleShowtimeSelect}>
+                                        <div class="time-display">
+                                            <lightning-icon icon-name="utility:clock" size="x-small"></lightning-icon>
+                                            <span class="time-text">{showtime.Session_Time__c}</span>
+                                        </div>
+
+                                        <div class="showtime-details">
+                                            <div class="badges">
+                                                <template if:true={showtime.Is_3D__c}>
+                                                    <lightning-badge label="3D" class="badge-3d"></lightning-badge>
+                                                </template>
+                                                <template if:true={showtime.Is_IMAX__c}>
+                                                    <lightning-badge label="IMAX" class="badge-imax"></lightning-badge>
+                                                </template>
+                                                <lightning-badge label={showtime.Language__c}></lightning-badge>
+                                            </div>
+
+                                            <div class="pricing">
+                                                <span class="price">${showtime.Ticket_Price__c}</span>
+                                                <span class="per-ticket">per ticket</span>
+                                            </div>
+
+                                            <div class="availability">
+                                                <template if:true={showtime.Available_Seats__c}>
+                                                    <lightning-icon icon-name="utility:success" size="xx-small"
+                                                        class="success-icon"></lightning-icon>
+                                                    <span class="seats-available">{showtime.Available_Seats__c} seats
+                                                        left</span>
+                                                </template>
+                                                <template if:false={showtime.Available_Seats__c}>
+                                                    <lightning-icon icon-name="utility:error" size="xx-small"
+                                                        class="error-icon"></lightning-icon>
+                                                    <span class="sold-out">Sold Out</span>
+                                                </template>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </template>
+
+            <!-- No Showtimes -->
+            <template if:false={hasShowtimes}>
+                <template if:false={isLoading}>
+                    <div class="slds-text-align_center slds-p-around_large">
+                        <lightning-icon icon-name="utility:warning" size="large"></lightning-icon>
+                        <p class="slds-m-top_medium">No showtimes available for the selected date.</p>
+                        <p class="slds-text-body_small slds-text-color_weak">
+                            Try selecting a different date or check back later.
+                        </p>
+                    </div>
+                </template>
+            </template>
+
+            <!-- Error Message -->
+            <template if:true={error}>
+                <div class="slds-box slds-theme_error slds-m-top_medium">
+                    <p>{error.body.message}</p>
+                </div>
+            </template>
+        </div>
+    </lightning-card>
+</template>
