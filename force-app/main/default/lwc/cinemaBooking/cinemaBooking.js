@@ -61,20 +61,24 @@ export default class CinemaBooking extends LightningElement {
     }
 
     handleShowtimeSelect(event) {
+        console.log('handleShowtimeSelect called', event);
         // Check if event comes from custom event (showtimeSelector component)
         if (event && event.detail && event.detail.showtime) {
             this.selectedShowtime = event.detail.showtime;
+            console.log('Selected showtime from event.detail:', this.selectedShowtime);
             this.currentStep = 3;
         } 
         // Handle click event from inline showtime cards
         else if (event && event.currentTarget) {
             const showtimeId = event.currentTarget.dataset.id;
             const showtime = this.showtimes ? this.showtimes.find(st => st.Id === showtimeId) : null;
+            console.log('Selected showtime from click:', showtime);
             if (showtime) {
                 this.selectedShowtime = showtime;
                 this.currentStep = 3;
             }
         }
+        console.log('Final selectedShowtime:', this.selectedShowtime);
     }
 
     handleSeatSelection(event) {

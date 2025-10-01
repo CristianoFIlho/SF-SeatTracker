@@ -15,7 +15,9 @@ export default class SeatReservation extends LightningElement {
 
     @wire(getSeatsForShowtime, { showtimeId: '$showtimeId' })
     wiredSeats({ error, data }) {
+        console.log('Seat wire called with showtimeId:', this.showtimeId);
         if (data) {
+            console.log('Seats loaded:', data.length, 'seats');
             this.seats = data.map(seat => ({
                 ...seat,
                 isSelected: false,
@@ -23,8 +25,10 @@ export default class SeatReservation extends LightningElement {
             }));
             this.error = undefined;
         } else if (error) {
+            console.error('Error loading seats:', error);
             this.error = error;
-            this.showToast('Error', 'Error loading seats: ' + error.body.message, 'error');
+            const errorMessage = error.body ? error.body.message : JSON.stringify(error);
+            this.showToast('Error', 'Error loading seats: ' + errorMessage, 'error');
         }
     }
 
