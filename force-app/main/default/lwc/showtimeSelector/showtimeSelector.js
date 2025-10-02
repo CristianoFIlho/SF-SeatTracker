@@ -5,7 +5,7 @@ import getAvailableShowtimes from '@salesforce/apex/ReservationController.getAva
 export default class ShowtimeSelector extends LightningElement {
     @api movieId;
     @api movieName;
-    
+
     @track showtimes = [];
     @track selectedShowtime = null;
     @track selectedDate;
@@ -14,11 +14,11 @@ export default class ShowtimeSelector extends LightningElement {
     @track mapMarkers = [];
 
     connectedCallback() {
-        // Set default date to tomorrow
+        // Set default date to 03/10/2025 (where showtimes exist)
         const tomorrow = new Date();
-        tomorrow.setDate(tomorrow.getDate() + 1);
+        tomorrow.setDate(tomorrow.getDate() + 2); // 03/10/2025
         this.selectedDate = tomorrow.toISOString().split('T')[0];
-        
+
         if (this.movieId) {
             this.loadShowtimes();
         }
@@ -27,33 +27,50 @@ export default class ShowtimeSelector extends LightningElement {
     loadShowtimes() {
         this.isLoading = true;
         const dateObj = new Date(this.selectedDate);
-        
-        getAvailableShowtimes({ 
+
+        getAvailableShowtimes({
             movieId: this.movieId,
             selectedDate: dateObj
         })
-        .then(result => {
-            this.showtimes = result;
-            this.prepareMapMarkers(result);
-            this.isLoading = false;
-            this.error = undefined;
-        })
-        .catch(error => {
-            this.error = error;
-            this.isLoading = false;
-            this.showtimes = [];
-            this.showToast('Error', 'Error loading showtimes: ' + error.body.message, 'error');
-        });
+            .then(result => {
+                this.showtimes = result;
+                this.prepareMapMarkers(result);
+                this.isLoading = false;
+                this.error = undefined;
+
+                console.log(`✅ Loaded ${result.length} showtimes for ${this.movieName}`);
+
+                // Notificar se não há horários disponíveis
+                if (!result || result.length === 0) {
+                    this.showToast('Nenhum Horário Disponível',
+                        `Não há sessões disponíveis para ${this.movieName || 'este filme'} na data selecionada.`,
+                        'warning');
+                }
+            })
+            .catch(error => {
+                this.error = error;
+                this.isLoading = false;
+                this.showtimes = [];
+                this.mapMarkers = [];
+
+                console.error('❌ Error loading showtimes:', error);
+
+                const errorMessage = error.body?.message ||
+                    error.message ||
+                    'Ocorreu um erro ao carregar os horários.';
+
+                this.showToast('Erro ao Carregar Horários', errorMessage, 'error');
+            });
     }
 
     prepareMapMarkers(showtimes) {
         const markerMap = new Map();
-        
+
         showtimes.forEach(showtime => {
             const theater = showtime.Theater__r;
             if (theater.Location__Latitude__s && theater.Location__Longitude__s) {
                 const key = `${theater.Id}`;
-                
+
                 if (!markerMap.has(key)) {
                     markerMap.set(key, {
                         location: {
@@ -67,7 +84,7 @@ export default class ShowtimeSelector extends LightningElement {
                 }
             }
         });
-        
+
         this.mapMarkers = Array.from(markerMap.values());
     }
 
@@ -79,12 +96,12 @@ export default class ShowtimeSelector extends LightningElement {
     handleShowtimeSelect(event) {
         const showtimeId = event.currentTarget.dataset.id;
         const showtime = this.showtimes.find(st => st.Id === showtimeId);
-        
+
         if (showtime) {
             this.selectedShowtime = showtime;
-            
+
             const selectEvent = new CustomEvent('showtimeselect', {
-                detail: { 
+                detail: {
                     showtime: showtime,
                     showtimeId: showtimeId
                 }
@@ -127,7 +144,7 @@ export default class ShowtimeSelector extends LightningElement {
 
     get groupedShowtimes() {
         const grouped = {};
-        
+
         this.showtimes.forEach(showtime => {
             const theaterName = showtime.Theater__r.Name;
             if (!grouped[theaterName]) {
@@ -138,13 +155,13 @@ export default class ShowtimeSelector extends LightningElement {
             }
             grouped[theaterName].showtimes.push(showtime);
         });
-        
+
         return Object.keys(grouped).map(key => ({
             key: key,
             theater: grouped[key].theater,
             showtimes: grouped[key].showtimes.sort((a, b) => {
-                return new Date('1970/01/01 ' + a.Session_Time__c) - 
-                       new Date('1970/01/01 ' + b.Session_Time__c);
+                return new Date('1970/01/01 ' + a.Session_Time__c) -
+                    new Date('1970/01/01 ' + b.Session_Time__c);
             })
         }));
     }

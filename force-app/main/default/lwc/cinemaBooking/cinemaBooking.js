@@ -1,4 +1,5 @@
 import { LightningElement, track } from 'lwc';
+import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import getAvailableShowtimes from '@salesforce/apex/ReservationController.getAvailableShowtimes';
 
 export default class CinemaBooking extends LightningElement {
@@ -30,7 +31,7 @@ export default class CinemaBooking extends LightningElement {
 
     getTomorrowDate() {
         const tomorrow = new Date();
-        tomorrow.setDate(tomorrow.getDate() + 1);
+        tomorrow.setDate(tomorrow.getDate() + 2); // 03/10/2025
         return tomorrow.toISOString().split('T')[0];
     }
 
@@ -48,29 +49,55 @@ export default class CinemaBooking extends LightningElement {
             return;
         }
         const dateObj = new Date(this.selectedDate);
-        getAvailableShowtimes({ 
+        getAvailableShowtimes({
             movieId: this.selectedMovie.Id,
             selectedDate: dateObj
         })
-        .then(result => {
-            this.showtimes = result;
-        })
-        .catch(error => {
-            console.error('Error loading showtimes:', error);
-        });
+            .then(result => {
+                this.showtimes = result;
+                console.log(`✅ Loaded ${result.length} showtimes`);
+
+                // Notificar usuário se não há showtimes disponíveis
+                if (!result || result.length === 0) {
+                    this.dispatchEvent(
+                        new ShowToastEvent({
+                            title: 'Nenhum Horário Disponível',
+                            message: 'Não há sessões disponíveis para este filme na data selecionada.',
+                            variant: 'warning',
+                            mode: 'dismissible'
+                        })
+                    );
+                }
+            })
+            .catch(error => {
+                console.error('❌ Error loading showtimes:', error);
+
+                // Feedback para o usuário
+                this.dispatchEvent(
+                    new ShowToastEvent({
+                        title: 'Erro ao Carregar os Horários',
+                        message: error.body ? error.body.message : 'Ocorreu um erro ao buscar os horários disponíveis.',
+                        variant: 'error',
+                        mode: 'sticky'
+                    })
+                );
+
+                // Limpar showtimes em caso de erro
+                this.showtimes = [];
+            });
     }
 
     handleShowtimeSelect(event) {
         console.log('=== CINEMA BOOKING DEBUG ===');
         console.log('handleShowtimeSelect called with event:', event);
-        
+
         // Check if event comes from custom event (showtimeSelector component)
         if (event && event.detail && event.detail.showtime) {
             this.selectedShowtime = event.detail.showtime;
             console.log('Showtime Selected from event.detail:', JSON.stringify(this.selectedShowtime));
             console.log('Selected showtime ID:', this.selectedShowtime.Id);
             this.currentStep = 3;
-        } 
+        }
         // Handle click event from inline showtime cards
         else if (event && event.currentTarget) {
             const showtimeId = event.currentTarget.dataset.id;

@@ -23,18 +23,36 @@ export default class MovieSearch extends LightningElement {
                 this.filteredMovies = result;
                 this.isLoading = false;
                 this.error = undefined;
+
+                console.log(`✅ Loaded ${result.length} movies`);
+
+                // Notificar se não há filmes
+                if (!result || result.length === 0) {
+                    this.showToast('Nenhum Filme Disponível',
+                        'Não há filmes ativos no momento.',
+                        'warning');
+                }
             })
             .catch(error => {
                 this.error = error;
                 this.isLoading = false;
-                this.showToast('Error', 'Error loading movies: ' + error.body.message, 'error');
+                this.movies = [];
+                this.filteredMovies = [];
+
+                console.error('❌ Error loading movies:', error);
+
+                const errorMessage = error.body?.message ||
+                    error.message ||
+                    'Ocorreu um erro ao carregar os filmes.';
+
+                this.showToast('Erro ao Carregar Filmes', errorMessage, 'error');
             });
     }
 
     handleSearch(event) {
         this.searchTerm = event.target.value.toLowerCase();
         if (this.searchTerm) {
-            this.filteredMovies = this.movies.filter(movie => 
+            this.filteredMovies = this.movies.filter(movie =>
                 movie.Name.toLowerCase().includes(this.searchTerm) ||
                 (movie.Synopsis__c && movie.Synopsis__c.toLowerCase().includes(this.searchTerm)) ||
                 (movie.Genre__c && movie.Genre__c.toLowerCase().includes(this.searchTerm))
@@ -47,7 +65,7 @@ export default class MovieSearch extends LightningElement {
     handleMovieSelect(event) {
         const movieId = event.currentTarget.dataset.id;
         const selectedMovie = this.movies.find(movie => movie.Id === movieId);
-        
+
         const selectEvent = new CustomEvent('movieselect', {
             detail: { movieId, movie: selectedMovie }
         });
