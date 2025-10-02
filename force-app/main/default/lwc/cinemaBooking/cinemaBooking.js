@@ -1,6 +1,10 @@
 import { LightningElement, track } from 'lwc';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import getAvailableShowtimes from '@salesforce/apex/ReservationController.getAvailableShowtimes';
+import getActiveMovies from '@salesforce/apex/ReservationController.getActiveMovies';
+
+// Test console immediately
+console.log('🔥 CINEMA BOOKING CLASS LOADING...');
 
 export default class CinemaBooking extends LightningElement {
     @track currentStep = 1;
@@ -10,7 +14,14 @@ export default class CinemaBooking extends LightningElement {
     @track showtimes = [];
     @track totalPrice = 0;
     @track showConfirmationModal = false;
-    @track selectedDate = this.getTomorrowDate();
+    @track selectedDate;
+
+    constructor() {
+        super();
+        console.log('🏗️ CINEMA BOOKING CONSTRUCTOR CALLED');
+        this.selectedDate = this.getTomorrowDate();
+        console.log('📅 Default date set to:', this.selectedDate);
+    }
 
     get isStep1() { return this.currentStep === 1; }
     get isStep2() { return this.currentStep === 2; }
@@ -33,6 +44,44 @@ export default class CinemaBooking extends LightningElement {
         const tomorrow = new Date();
         tomorrow.setDate(tomorrow.getDate() + 2); // 03/10/2025
         return tomorrow.toISOString().split('T')[0];
+    }
+
+    connectedCallback() {
+        console.log('🚀 CINEMA BOOKING INITIALIZED');
+        console.log('🎬 Testing data connection...');
+        this.testDataConnection();
+    }
+
+    testDataConnection() {
+        console.log('📊 Testing getActiveMovies...');
+        getActiveMovies()
+            .then(movies => {
+                console.log('✅ Movies loaded:', movies.length);
+                movies.forEach(movie => {
+                    console.log(`   - ${movie.Name} (${movie.Id})`);
+                });
+
+                if (movies.length > 0) {
+                    console.log('📅 Testing getAvailableShowtimes for first movie...');
+                    const testDate = new Date('2025-10-03');
+                    return getAvailableShowtimes({
+                        movieId: movies[0].Id,
+                        selectedDate: testDate
+                    });
+                }
+            })
+            .then(showtimes => {
+                if (showtimes) {
+                    console.log('✅ Showtimes loaded:', showtimes.length);
+                    showtimes.forEach(st => {
+                        console.log(`   - ${st.Theater__r.Name} at ${st.Session_Time__c}`);
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('❌ Data connection test failed:', error);
+                console.error('Error details:', error.body);
+            });
     }
 
     handleMovieSelect(event) {

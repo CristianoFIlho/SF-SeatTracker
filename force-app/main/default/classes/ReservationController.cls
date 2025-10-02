@@ -46,9 +46,7 @@ public with sharing class ReservationController {
                 FROM Showtime__c
                 WHERE Movie__c = :movieId
                 AND Session_Date__c = :selectedDate
-                AND Available_Seats__c > 0
                 AND Status__c = 'Scheduled'
-                AND Session_DateTime__c > :System.now()
                 ORDER BY Session_Time__c ASC
             ];
         } catch (Exception e) {
