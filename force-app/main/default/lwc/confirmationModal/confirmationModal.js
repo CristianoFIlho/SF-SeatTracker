@@ -76,10 +76,21 @@ export default class ConfirmationModal extends LightningElement {
             this.handleClose();
         })
         .catch(error => {
+            console.error('=== CONFIRMATION MODAL ERROR ===');
+            console.error('Full error from createReservation:', JSON.stringify(error));
+            console.error('Error body:', error.body);
+            console.error('Error message:', error.body?.message);
+            console.error('Error status:', error.status);
+            console.error('Error statusText:', error.statusText);
+            console.error('=== END CONFIRMATION MODAL ERROR ===');
+            
             this.isLoading = false;
+            
+            const errorMessage = error.body?.message || error.message || 'Unknown error occurred';
+            
             this.showToast(
-                'Error', 
-                'Error creating reservation: ' + (error.body?.message || error.message),
+                'Reservation Failed', 
+                errorMessage,
                 'error'
             );
         });
@@ -90,11 +101,17 @@ export default class ConfirmationModal extends LightningElement {
     }
 
     showToast(title, message, variant) {
+        console.log('=== SHOW TOAST ===');
+        console.log('Title:', title);
+        console.log('Message:', message);
+        console.log('Variant:', variant);
+        console.log('=== END SHOW TOAST ===');
+        
         const event = new ShowToastEvent({
             title,
             message,
             variant,
-            mode: variant === 'success' ? 'sticky' : 'dismissable'
+            mode: variant === 'error' ? 'sticky' : 'dismissable'
         });
         this.dispatchEvent(event);
     }

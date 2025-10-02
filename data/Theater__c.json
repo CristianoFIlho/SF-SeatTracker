@@ -15,7 +15,10 @@
       "Location__Latitude__s": -23.5505,
       "Location__Longitude__s": -46.6333,
       "Total_Screens__c": 8,
-      "Is_Active__c": true
+      "Is_Active__c": true,
+      "Number_of_Rows__c": 10,
+      "Seats_Per_Row__c": 10,
+      "Seat_Layout_Type__c": "Standard"
     },
     {
       "attributes": {
@@ -32,7 +35,10 @@
       "Location__Latitude__s": -23.5489,
       "Location__Longitude__s": -46.6388,
       "Total_Screens__c": 12,
-      "Is_Active__c": true
+      "Is_Active__c": true,
+      "Number_of_Rows__c": 12,
+      "Seats_Per_Row__c": 12,
+      "Seat_Layout_Type__c": "Premium"
     }
   ]
 }

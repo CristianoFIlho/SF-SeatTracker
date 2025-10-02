@@ -1,0 +1,55 @@
+<template>
+    <div class="payment-container">
+        <div class="payment-header">
+            <h2>Payment Details</h2>
+            <p class="amount">Total: {formattedAmount}</p>
+        </div>
+
+        <div class="payment-form">
+            <div class="form-group">
+                <label for="cardholder">Cardholder Name</label>
+                <input type="text" id="cardholder" value={cardholderName} onchange={handleCardholderChange}
+                    placeholder="John Doe" class="form-control" />
+            </div>
+
+            <div class="form-group">
+                <label for="cardnumber">Card Number</label>
+                <input type="text" id="cardnumber" value={cardNumber} onchange={handleCardNumberChange}
+                    placeholder="1234 5678 9012 3456" maxlength="19" class="form-control" />
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="expiry">Expiry Date</label>
+                    <input type="text" id="expiry" value={expiryDate} onchange={handleExpiryChange} placeholder="MM/YY"
+                        maxlength="5" class="form-control" />
+                </div>
+
+                <div class="form-group">
+                    <label for="cvv">CVV</label>
+                    <input type="text" id="cvv" value={cvv} onchange={handleCvvChange} placeholder="123" maxlength="4"
+                        class="form-control" />
+                </div>
+            </div>
+        </div>
+
+        <div class="payment-actions">
+            <button type="button" class="btn btn-secondary" onclick={handleCancel} disabled={isLoading}>
+                Cancel
+            </button>
+
+            <button type="button" class="btn btn-primary" onclick={handlePayment} disabled={isButtonDisabled}>
+                <template if:true={isLoading}>
+                    Processing...
+                </template>
+                <template if:false={isLoading}>
+                    Pay {formattedAmount}
+                </template>
+            </button>
+        </div>
+
+        <div class="security-info">
+            <p><i class="fas fa-lock"></i> Your payment information is secure and encrypted</p>
+        </div>
+    </div>
+</template>

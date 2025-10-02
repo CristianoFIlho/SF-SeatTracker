@@ -1,5 +1,10 @@
 import { LightningElement, track } from 'lwc';
+import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import getAvailableShowtimes from '@salesforce/apex/ReservationController.getAvailableShowtimes';
+import getActiveMovies from '@salesforce/apex/ReservationController.getActiveMovies';
+
+// Test console immediately
+console.log('🔥 CINEMA BOOKING CLASS LOADING...');
 
 export default class CinemaBooking extends LightningElement {
     @track currentStep = 1;
@@ -9,7 +14,14 @@ export default class CinemaBooking extends LightningElement {
     @track showtimes = [];
     @track totalPrice = 0;
     @track showConfirmationModal = false;
-    @track selectedDate = this.getTomorrowDate();
+    @track selectedDate;
+
+    constructor() {
+        super();
+        console.log('🏗️ CINEMA BOOKING CONSTRUCTOR CALLED');
+        this.selectedDate = this.getTomorrowDate();
+        console.log('📅 Default date set to:', this.selectedDate);
+    }
 
     get isStep1() { return this.currentStep === 1; }
     get isStep2() { return this.currentStep === 2; }
@@ -30,8 +42,46 @@ export default class CinemaBooking extends LightningElement {
 
     getTomorrowDate() {
         const tomorrow = new Date();
-        tomorrow.setDate(tomorrow.getDate() + 1);
+        tomorrow.setDate(tomorrow.getDate() + 2); // 03/10/2025
         return tomorrow.toISOString().split('T')[0];
+    }
+
+    connectedCallback() {
+        console.log('🚀 CINEMA BOOKING INITIALIZED');
+        console.log('🎬 Testing data connection...');
+        this.testDataConnection();
+    }
+
+    testDataConnection() {
+        console.log('📊 Testing getActiveMovies...');
+        getActiveMovies()
+            .then(movies => {
+                console.log('✅ Movies loaded:', movies.length);
+                movies.forEach(movie => {
+                    console.log(`   - ${movie.Name} (${movie.Id})`);
+                });
+
+                if (movies.length > 0) {
+                    console.log('📅 Testing getAvailableShowtimes for first movie...');
+                    const testDate = new Date('2025-10-03');
+                    return getAvailableShowtimes({
+                        movieId: movies[0].Id,
+                        selectedDate: testDate
+                    });
+                }
+            })
+            .then(showtimes => {
+                if (showtimes) {
+                    console.log('✅ Showtimes loaded:', showtimes.length);
+                    showtimes.forEach(st => {
+                        console.log(`   - ${st.Theater__r.Name} at ${st.Session_Time__c}`);
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('❌ Data connection test failed:', error);
+                console.error('Error details:', error.body);
+            });
     }
 
     handleMovieSelect(event) {
@@ -48,37 +98,71 @@ export default class CinemaBooking extends LightningElement {
             return;
         }
         const dateObj = new Date(this.selectedDate);
-        getAvailableShowtimes({ 
+        getAvailableShowtimes({
             movieId: this.selectedMovie.Id,
             selectedDate: dateObj
         })
-        .then(result => {
-            this.showtimes = result;
-        })
-        .catch(error => {
-            console.error('Error loading showtimes:', error);
-        });
+            .then(result => {
+                this.showtimes = result;
+                console.log(`✅ Loaded ${result.length} showtimes`);
+
+                // Notificar usuário se não há showtimes disponíveis
+                if (!result || result.length === 0) {
+                    this.dispatchEvent(
+                        new ShowToastEvent({
+                            title: 'Nenhum Horário Disponível',
+                            message: 'Não há sessões disponíveis para este filme na data selecionada.',
+                            variant: 'warning',
+                            mode: 'dismissible'
+                        })
+                    );
+                }
+            })
+            .catch(error => {
+                console.error('❌ Error loading showtimes:', error);
+
+                // Feedback para o usuário
+                this.dispatchEvent(
+                    new ShowToastEvent({
+                        title: 'Erro ao Carregar os Horários',
+                        message: error.body ? error.body.message : 'Ocorreu um erro ao buscar os horários disponíveis.',
+                        variant: 'error',
+                        mode: 'sticky'
+                    })
+                );
+
+                // Limpar showtimes em caso de erro
+                this.showtimes = [];
+            });
     }
 
     handleShowtimeSelect(event) {
-        console.log('handleShowtimeSelect called', event);
+        console.log('=== CINEMA BOOKING DEBUG ===');
+        console.log('handleShowtimeSelect called with event:', event);
+
         // Check if event comes from custom event (showtimeSelector component)
         if (event && event.detail && event.detail.showtime) {
             this.selectedShowtime = event.detail.showtime;
-            console.log('Selected showtime from event.detail:', this.selectedShowtime);
+            console.log('Showtime Selected from event.detail:', JSON.stringify(this.selectedShowtime));
+            console.log('Selected showtime ID:', this.selectedShowtime.Id);
             this.currentStep = 3;
-        } 
+        }
         // Handle click event from inline showtime cards
         else if (event && event.currentTarget) {
             const showtimeId = event.currentTarget.dataset.id;
             const showtime = this.showtimes ? this.showtimes.find(st => st.Id === showtimeId) : null;
-            console.log('Selected showtime from click:', showtime);
+            console.log('Showtime Selected from click - ID:', showtimeId);
+            console.log('Found showtime:', JSON.stringify(showtime));
             if (showtime) {
                 this.selectedShowtime = showtime;
+                console.log('Showtime Selected from click:', JSON.stringify(this.selectedShowtime));
+                console.log('Selected showtime ID:', this.selectedShowtime.Id);
                 this.currentStep = 3;
             }
         }
-        console.log('Final selectedShowtime:', this.selectedShowtime);
+        console.log('Final selectedShowtime:', JSON.stringify(this.selectedShowtime));
+        console.log('Current step set to:', this.currentStep);
+        console.log('=== END CINEMA BOOKING DEBUG ===');
     }
 
     handleSeatSelection(event) {
@@ -125,6 +209,10 @@ export default class CinemaBooking extends LightningElement {
         if (this.currentStep === 2) return this.selectedShowtime !== null;
         if (this.currentStep === 3) return this.selectedSeats.length > 0;
         return false;
+    }
+
+    get isNextDisabled() {
+        return !this.canProceed;
     }
 
     get nextButtonLabel() {

@@ -75,25 +75,37 @@
 
             <!-- Loading -->
             <template if:true={isLoading}>
-                <div class="slds-is-relative" style="height: 300px;">
-                    <lightning-spinner alternative-text="Loading seats..." size="medium"></lightning-spinner>
+                <div class="slds-align_absolute-center" style="height: 300px;">
+                    <div class="slds-text-align_center">
+                        <lightning-spinner alternative-text="Loading seats..." size="medium"></lightning-spinner>
+                        <p class="slds-m-top_medium slds-text-heading_small">Loading available seats...</p>
+                        <p class="slds-text-color_weak">Please wait</p>
+                    </div>
                 </div>
             </template>
 
             <!-- No Seats -->
             <template if:false={hasSeats}>
                 <template if:false={isLoading}>
-                    <div class="slds-text-align_center slds-p-around_large">
-                        <lightning-icon icon-name="utility:warning" size="large"></lightning-icon>
-                        <p class="slds-m-top_medium">No seats available for this showtime.</p>
-                    </div>
+                    <template if:false={error}>
+                        <div class="slds-text-align_center slds-p-around_x-large">
+                            <lightning-icon icon-name="utility:warning" size="large" variant="warning"></lightning-icon>
+                            <p class="slds-text-heading_medium slds-m-top_medium">No Seats Available</p>
+                            <p class="slds-text-color_weak">This showtime currently has no available seats.</p>
+                        </div>
+                    </template>
                 </template>
             </template>
 
             <!-- Error -->
             <template if:true={error}>
                 <div class="slds-box slds-theme_error slds-m-top_medium">
-                    <p>{error.body.message}</p>
+                    <div class="slds-text-align_center slds-p-around_medium">
+                        <lightning-icon icon-name="utility:error" size="medium" variant="error"></lightning-icon>
+                        <p class="slds-text-heading_small slds-m-top_small">Unable to Load Seats</p>
+                        <p class="slds-m-top_small">{error.body.message}</p>
+                        <p class="slds-text-color_weak slds-m-top_x-small">Please refresh the page and try again</p>
+                    </div>
                 </div>
             </template>
 

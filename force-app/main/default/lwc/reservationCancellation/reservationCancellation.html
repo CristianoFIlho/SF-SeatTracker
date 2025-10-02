@@ -1,0 +1,125 @@
+<template>
+    <div class="cancellation-container">
+        <div class="header">
+            <h2>Cancel Reservation</h2>
+            <p>Enter your confirmation code to find and cancel your reservation</p>
+        </div>
+
+        <div class="search-section">
+            <div class="form-group">
+                <label for="confirmationCode">Confirmation Code</label>
+                <input type="text" id="confirmationCode" value={confirmationCode} onchange={handleCodeChange}
+                    placeholder="Enter your confirmation code" class="form-control" />
+            </div>
+
+            <button type="button" class="btn btn-primary" onclick={handleSearchReservation}
+                disabled={isSearchButtonDisabled}>
+                <template if:true={isLoading}>
+                    Searching...
+                </template>
+                <template if:false={isLoading}>
+                    Find Reservation
+                </template>
+            </button>
+        </div>
+
+        <template if:true={hasReservation}>
+            <div class="reservation-details">
+                <h3>Reservation Details</h3>
+
+                <div class="detail-row">
+                    <span class="label">Confirmation Code:</span>
+                    <span class="value">{reservation.Confirmation_Code__c}</span>
+                </div>
+
+                <div class="detail-row">
+                    <span class="label">Customer:</span>
+                    <span class="value">{reservation.Customer_Name__c}</span>
+                </div>
+
+                <div class="detail-row">
+                    <span class="label">Movie:</span>
+                    <span class="value">{reservation.Movie__r.Name}</span>
+                </div>
+
+                <div class="detail-row">
+                    <span class="label">Showtime:</span>
+                    <span class="value">{formattedShowtime}</span>
+                </div>
+
+                <div class="detail-row">
+                    <span class="label">Theater:</span>
+                    <span class="value">{reservation.Showtime__r.Theater__r.Name}</span>
+                </div>
+
+                <div class="detail-row">
+                    <span class="label">Seats:</span>
+                    <span class="value">{reservation.Seat_Numbers__c}</span>
+                </div>
+
+                <div class="detail-row">
+                    <span class="label">Total Amount:</span>
+                    <span class="value">{formattedAmount}</span>
+                </div>
+
+                <div class="detail-row">
+                    <span class="label">Status:</span>
+                    <span class="value status-{reservation.Status__c.toLowerCase()}">{reservation.Status__c}</span>
+                </div>
+
+                <div class="detail-row">
+                    <span class="label">Payment Status:</span>
+                    <span
+                        class="value payment-{reservation.Payment_Status__c.toLowerCase()}">{reservation.Payment_Status__c}</span>
+                </div>
+            </div>
+
+            <template if:true={canCancel}>
+                <div class="cancellation-warning">
+                    <div class="warning-icon">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div class="warning-content">
+                        <h4>Important Notice</h4>
+                        <p>{cancellationMessage}</p>
+                        <p>If you cancel this reservation, your seats will be released and made available to other
+                            customers.</p>
+                    </div>
+                </div>
+
+                <div class="cancel-actions">
+                    <button type="button" class="btn btn-secondary" onclick={handleReset} disabled={isLoading}>
+                        Back
+                    </button>
+
+                    <button type="button" class="btn btn-danger" onclick={handleCancelReservation} disabled={isLoading}>
+                        <template if:true={isLoading}>
+                            Cancelling...
+                        </template>
+                        <template if:false={isLoading}>
+                            Cancel Reservation
+                        </template>
+                    </button>
+                </div>
+            </template>
+
+            <template if:false={canCancel}>
+                <div class="cannot-cancel">
+                    <div class="warning-icon">
+                        <i class="fas fa-info-circle"></i>
+                    </div>
+                    <div class="warning-content">
+                        <h4>Cannot Cancel</h4>
+                        <p>{cancellationMessage}</p>
+                    </div>
+                </div>
+
+                <div class="cancel-actions">
+                    <button type="button" class="btn btn-secondary" onclick={handleReset}>
+                        Back
+                    </button>
+                </div>
+            </template>
+        </template>
+    </div>
+</template>
