@@ -162,6 +162,10 @@ export default class CinemaBooking extends LightningElement {
         return false;
     }
 
+    get isNextDisabled() {
+        return !this.canProceed;
+    }
+
     get nextButtonLabel() {
         return this.currentStep === 3 ? 'Confirm Reservation' : 'Next';
     }
