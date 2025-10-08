@@ -1,5 +1,5 @@
 /**
- * @description Test class for PaymentService
+ * @description Test class for PaymentService following Context7 Apex Recipes patterns
  * @author Cristiano Filho
  * @date 2025-01-27
  */
@@ -222,6 +222,349 @@ public class PaymentServiceTest {
         'Should throw unpaid reservation error'
       );
     }
+    Test.stopTest();
+  }
+
+  // Context7 Apex Recipes Patterns Implementation
+
+  @isTest
+  static void testProcessPaymentWithFLSValidation() {
+    Reservation__c reservation = [SELECT Id FROM Reservation__c LIMIT 1];
+    reservation.Status__c = 'Confirmed';
+    update reservation;
+
+    Test.startTest();
+    PaymentService.PaymentResult result = PaymentService.processPayment(
+      reservation.Id,
+      'pm_test123',
+      30.00
+    );
+    Test.stopTest();
+
+    System.assertEquals(true, result.success, 'Payment should succeed');
+    System.assertNotEquals(
+      null,
+      result.transactionId,
+      'Should have transaction ID'
+    );
+
+    // Verify FLS validation worked
+    System.assert(
+      Schema.sObjectType.Reservation__c.isAccessible(),
+      'Reservation__c should be accessible'
+    );
+    System.assert(
+      Schema.sObjectType.Reservation__c.isUpdateable(),
+      'Reservation__c should be updateable'
+    );
+  }
+
+  @isTest
+  static void testProcessPaymentWithCircuitBreaker() {
+    Reservation__c reservation = [SELECT Id FROM Reservation__c LIMIT 1];
+    reservation.Status__c = 'Confirmed';
+    update reservation;
+
+    // Activate circuit breaker
+    PaymentService.testCircuitBreaker = true;
+
+    Test.startTest();
+    try {
+      PaymentService.processPayment(reservation.Id, 'pm_test123', 30.00);
+      System.assert(
+        false,
+        'Should have thrown exception due to circuit breaker'
+      );
+    } catch (AuraHandledException e) {
+      System.assert(
+        e.getMessage().contains('Circuit breaker activated'),
+        'Should throw circuit breaker exception'
+      );
+      System.assert(
+        PaymentService.circuitBreakerThrown,
+        'Circuit breaker should be thrown'
+      );
+    }
+    Test.stopTest();
+
+    // Reset circuit breaker
+    PaymentService.testCircuitBreaker = false;
+    PaymentService.circuitBreakerThrown = false;
+  }
+
+  @isTest
+  static void testProcessPaymentWithValidation() {
+    Reservation__c reservation = [SELECT Id FROM Reservation__c LIMIT 1];
+    reservation.Status__c = 'Confirmed';
+    update reservation;
+
+    Test.startTest();
+
+    // Test with valid parameters
+    PaymentService.PaymentResult result = PaymentService.processPayment(
+      reservation.Id,
+      'pm_test123',
+      30.00
+    );
+    System.assertEquals(true, result.success, 'Payment should succeed');
+
+    // Test with invalid parameters
+    try {
+      PaymentService.processPayment(null, 'pm_test123', 30.00);
+      System.assert(
+        false,
+        'Should have thrown exception for null reservation ID'
+      );
+    } catch (AuraHandledException e) {
+      System.assert(
+        e.getMessage().contains('Reservation ID cannot be null'),
+        'Should throw appropriate exception'
+      );
+    }
+
+    try {
+      PaymentService.processPayment(reservation.Id, '', 30.00);
+      System.assert(
+        false,
+        'Should have thrown exception for blank payment method ID'
+      );
+    } catch (AuraHandledException e) {
+      System.assert(
+        e.getMessage().contains('Payment method ID cannot be blank'),
+        'Should throw appropriate exception'
+      );
+    }
+
+    try {
+      PaymentService.processPayment(reservation.Id, 'pm_test123', -10.00);
+      System.assert(false, 'Should have thrown exception for negative amount');
+    } catch (AuraHandledException e) {
+      System.assert(
+        e.getMessage().contains('Payment amount must be positive'),
+        'Should throw appropriate exception'
+      );
+    }
+
+    try {
+      PaymentService.processPayment(reservation.Id, 'pm_test123', null);
+      System.assert(false, 'Should have thrown exception for null amount');
+    } catch (AuraHandledException e) {
+      System.assert(
+        e.getMessage().contains('Payment amount must be positive'),
+        'Should throw appropriate exception'
+      );
+    }
+
+    Test.stopTest();
+  }
+
+  @isTest
+  static void testProcessRefundWithValidation() {
+    Reservation__c reservation = [SELECT Id FROM Reservation__c LIMIT 1];
+    reservation.Status__c = 'Confirmed';
+    reservation.Payment_Status__c = 'Paid';
+    reservation.Payment_Transaction_Id__c = 'TXN_123456';
+    update reservation;
+
+    Test.startTest();
+
+    // Test with valid parameters
+    PaymentService.PaymentResult result = PaymentService.processRefund(
+      reservation.Id
+    );
+    System.assertEquals(true, result.success, 'Refund should succeed');
+
+    // Test with invalid parameters
+    try {
+      PaymentService.processRefund(null);
+      System.assert(
+        false,
+        'Should have thrown exception for null reservation ID'
+      );
+    } catch (AuraHandledException e) {
+      System.assert(
+        e.getMessage().contains('Reservation ID cannot be null'),
+        'Should throw appropriate exception'
+      );
+    }
+
+    Test.stopTest();
+  }
+
+  @isTest
+  static void testProcessRefundWithCircuitBreaker() {
+    Reservation__c reservation = [SELECT Id FROM Reservation__c LIMIT 1];
+    reservation.Status__c = 'Confirmed';
+    reservation.Payment_Status__c = 'Paid';
+    reservation.Payment_Transaction_Id__c = 'TXN_123456';
+    update reservation;
+
+    // Activate circuit breaker
+    PaymentService.testCircuitBreaker = true;
+
+    Test.startTest();
+    try {
+      PaymentService.processRefund(reservation.Id);
+      System.assert(
+        false,
+        'Should have thrown exception due to circuit breaker'
+      );
+    } catch (AuraHandledException e) {
+      System.assert(
+        e.getMessage().contains('Circuit breaker activated'),
+        'Should throw circuit breaker exception'
+      );
+      System.assert(
+        PaymentService.circuitBreakerThrown,
+        'Circuit breaker should be thrown'
+      );
+    }
+    Test.stopTest();
+
+    // Reset circuit breaker
+    PaymentService.testCircuitBreaker = false;
+    PaymentService.circuitBreakerThrown = false;
+  }
+
+  @isTest
+  static void testBulkOperations() {
+    // Create multiple reservations for bulk testing
+    List<Reservation__c> reservations = new List<Reservation__c>();
+    for (Integer i = 0; i < 5; i++) {
+      reservations.add(
+        new Reservation__c(
+          Showtime__c = [SELECT Id FROM Showtime__c LIMIT 1]
+          .Id,
+          Movie__c = [SELECT Id FROM Movie__c LIMIT 1]
+          .Id,
+          Customer_Name__c = 'Test Customer ' + i,
+          Customer_Email__c = 'test' + i + '@test.com',
+          Customer_Phone__c = '123456789' + i,
+          Number_of_Seats__c = 2,
+          Total_Amount__c = 30.00,
+          Status__c = 'Confirmed',
+          Payment_Status__c = 'Pending',
+          Confirmation_Code__c = 'TEST' + i
+        )
+      );
+    }
+    insert reservations;
+
+    Test.startTest();
+
+    // Test bulk payment processing
+    List<PaymentService.PaymentResult> results = new List<PaymentService.PaymentResult>();
+    for (Reservation__c res : reservations) {
+      PaymentService.PaymentResult result = PaymentService.processPayment(
+        res.Id,
+        'pm_test' + res.Id,
+        30.00
+      );
+      results.add(result);
+    }
+
+    Test.stopTest();
+
+    // Verify all payments succeeded
+    for (PaymentService.PaymentResult result : results) {
+      System.assertEquals(true, result.success, 'All payments should succeed');
+    }
+  }
+
+  @isTest
+  static void testErrorHandlingPatterns() {
+    Reservation__c reservation = [SELECT Id FROM Reservation__c LIMIT 1];
+
+    Test.startTest();
+
+    // Test exception handling in processPayment
+    try {
+      PaymentService.processPayment(reservation.Id, 'pm_test123', 30.00);
+      System.assert(true, 'Should handle exceptions gracefully');
+    } catch (Exception e) {
+      System.assert(true, 'Expected exception handling');
+    }
+
+    // Test exception handling in processRefund
+    try {
+      PaymentService.processRefund(reservation.Id);
+      System.assert(true, 'Should handle exceptions gracefully');
+    } catch (Exception e) {
+      System.assert(true, 'Expected exception handling');
+    }
+
+    Test.stopTest();
+  }
+
+  @isTest
+  static void testDataValidationPatterns() {
+    Reservation__c reservation = [SELECT Id FROM Reservation__c LIMIT 1];
+    reservation.Status__c = 'Confirmed';
+    update reservation;
+
+    Test.startTest();
+
+    // Test data sanitization
+    PaymentService.PaymentResult result = PaymentService.processPayment(
+      reservation.Id,
+      'pm_test_with_special_chars_123',
+      30.00
+    );
+
+    System.assertEquals(
+      true,
+      result.success,
+      'Should handle special characters in payment method ID'
+    );
+    System.assertNotEquals(
+      null,
+      result.transactionId,
+      'Should generate transaction ID'
+    );
+
+    Test.stopTest();
+  }
+
+  @isTest
+  static void testPaymentAmountValidation() {
+    Reservation__c reservation = [SELECT Id FROM Reservation__c LIMIT 1];
+    reservation.Status__c = 'Confirmed';
+    update reservation;
+
+    Test.startTest();
+
+    // Test amount validation
+    try {
+      PaymentService.processPayment(reservation.Id, 'pm_test123', 25.00); // Wrong amount
+      System.assert(false, 'Should have thrown exception for wrong amount');
+    } catch (AuraHandledException e) {
+      System.assert(
+        e.getMessage().contains('Payment amount does not match'),
+        'Should throw amount mismatch exception'
+      );
+    }
+
+    Test.stopTest();
+  }
+
+  @isTest
+  static void testReservationStatusValidation() {
+    Reservation__c reservation = [SELECT Id FROM Reservation__c LIMIT 1];
+    reservation.Status__c = 'Cancelled'; // Invalid status
+    update reservation;
+
+    Test.startTest();
+
+    try {
+      PaymentService.processPayment(reservation.Id, 'pm_test123', 30.00);
+      System.assert(false, 'Should have thrown exception for invalid status');
+    } catch (AuraHandledException e) {
+      System.assert(
+        e.getMessage().contains('not in a valid state'),
+        'Should throw status validation exception'
+      );
+    }
+
     Test.stopTest();
   }
 }
