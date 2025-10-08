@@ -2,7 +2,7 @@
     <div class="booking-container">
         <!-- Progress Indicator -->
         <div class="progress-section slds-m-bottom_medium">
-            <lightning-progress-indicator current-step={currentStep} type="path" variant="base">
+            <lightning-progress-indicator current-step={currentStepStr} type="path" variant="base">
                 <lightning-progress-step label="Select Movie" value="1"></lightning-progress-step>
                 <lightning-progress-step label="Choose Showtime" value="2"></lightning-progress-step>
                 <lightning-progress-step label="Pick Seats" value="3"></lightning-progress-step>
@@ -35,7 +35,7 @@
                         </div>
 
                     <lightning-input type="date" label="Select Date" value={selectedDate} min={selectedDate}
-                        class="slds-m-bottom_medium"></lightning-input>
+                        class="slds-m-bottom_medium" onchange={handleDateChange}></lightning-input>
 
                     <div class="showtimes-grid">
                         <template if:true={showtimes}>
