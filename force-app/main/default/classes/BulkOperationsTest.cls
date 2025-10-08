@@ -52,8 +52,11 @@ private class BulkOperationsTest {
       );
     }
 
+    // Bypass trigger handler for bulk operations
+    TriggerHandler.bypass('ShowtimeTriggerHandler');
     // Insert showtimes (trigger will handle seat generation)
     insert showtimes;
+    TriggerHandler.clearBypass('ShowtimeTriggerHandler');
 
     // Create test seats in bulk
     List<Seat__c> seats = new List<Seat__c>();
@@ -171,8 +174,11 @@ private class BulkOperationsTest {
       );
     }
 
+    // Bypass trigger handler for bulk operations
+    TriggerHandler.bypass('ShowtimeTriggerHandler');
     // Insert showtimes (trigger will handle seat generation)
     Database.SaveResult[] results = Database.insert(newShowtimes, false);
+    TriggerHandler.clearBypass('ShowtimeTriggerHandler');
 
     Integer successCount = 0;
     for (Database.SaveResult result : results) {
