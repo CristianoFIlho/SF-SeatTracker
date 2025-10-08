@@ -4,7 +4,7 @@
  * @author Refactored based on Context7 Apex Recipes patterns
  * @date 2025-01-27
  */
-public with sharing class ShowtimeTriggerHandler {
+public with sharing class ShowtimeTriggerHandler extends TriggerHandler {
   private static final String[] ROWS = new List<String>{
     'A',
     'B',
@@ -24,7 +24,7 @@ public with sharing class ShowtimeTriggerHandler {
    * @description Handle after insert events to generate seats for new showtimes.
    * Follows Context7 bulk operation patterns and security best practices.
    */
-  public static void handleAfterInsert(List<Showtime__c> newShowtimes) {
+  public override void afterInsert() {
     // Validate Field-Level Security before proceeding
     if (!Schema.sObjectType.Seat__c.isCreateable()) {
       throw new DmlException('Insufficient permissions to create seats');
@@ -41,7 +41,7 @@ public with sharing class ShowtimeTriggerHandler {
     }
 
     Set<Id> showtimeIds = new Set<Id>();
-    for (Showtime__c st : newShowtimes) {
+    for (Showtime__c st : (List<Showtime__c>) Trigger.new) {
       showtimeIds.add(st.Id);
     }
 
@@ -51,7 +51,7 @@ public with sharing class ShowtimeTriggerHandler {
     );
 
     List<Seat__c> seatsToInsert = new List<Seat__c>();
-    for (Showtime__c showtime : newShowtimes) {
+    for (Showtime__c showtime : (List<Showtime__c>) Trigger.new) {
       // Only generate seats if none exist for this showtime
       if (!showtimesWithExistingSeats.contains(showtime.Id)) {
         List<Seat__c> seats = createSeatsForShowtime(showtime);

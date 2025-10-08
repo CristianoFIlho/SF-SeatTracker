@@ -163,25 +163,25 @@ public abstract class TriggerHandler {
 
   // Abstract methods to be implemented by concrete handlers
   protected virtual void beforeInsert() {
-    // Override in concrete handler classes
+    // Override in concrete handler classes - no default implementation
   }
   protected virtual void afterInsert() {
-    // Override in concrete handler classes
+    // Override in concrete handler classes - no default implementation
   }
   protected virtual void beforeUpdate() {
-    // Override in concrete handler classes
+    // Override in concrete handler classes - no default implementation
   }
   protected virtual void afterUpdate() {
-    // Override in concrete handler classes
+    // Override in concrete handler classes - no default implementation
   }
   protected virtual void beforeDelete() {
-    // Override in concrete handler classes
+    // Override in concrete handler classes - no default implementation
   }
   protected virtual void afterDelete() {
-    // Override in concrete handler classes
+    // Override in concrete handler classes - no default implementation
   }
   protected virtual void afterUndelete() {
-    // Override in concrete handler classes
+    // Override in concrete handler classes - no default implementation
   }
 
   /**

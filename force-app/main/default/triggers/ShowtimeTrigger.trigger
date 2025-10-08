@@ -4,5 +4,6 @@
  * @date 2025-01-27
  */
 trigger ShowtimeTrigger on Showtime__c(after insert) {
-  ShowtimeTriggerHandler.handleAfterInsert(Trigger.new);
+  ShowtimeTriggerHandler handler = new ShowtimeTriggerHandler();
+  handler.run();
 }

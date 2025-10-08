@@ -595,4 +595,66 @@ private class SeatManagementServiceTest {
 
     Test.stopTest();
   }
+
+  @isTest
+  static void testGenerateSeatsDebug() {
+    // Create test data without @TestSetup
+    Movie__c movie = new Movie__c(
+      Name = 'Test Movie Debug',
+      Movie_API_ID__c = 'test123debug',
+      Is_Active__c = true
+    );
+    insert movie;
+
+    Theater__c theater = new Theater__c(
+      Name = 'Test Theater Debug',
+      Theater_API_ID__c = 'theater123debug',
+      City__c = 'Test City',
+      Is_Active__c = true
+    );
+    insert theater;
+
+    Showtime__c showtime = new Showtime__c(
+      Movie__c = movie.Id,
+      Theater__c = theater.Id,
+      Session_Date__c = Date.today().addDays(1),
+      Session_Time__c = Time.newInstance(14, 30, 0, 0),
+      Total_Seats__c = 100,
+      Reserved_Seats__c = 0,
+      Ticket_Price__c = 15.00,
+      Status__c = 'Scheduled'
+    );
+
+    // Bypass trigger to avoid automatic seat generation
+    TriggerHandler.bypass('ShowtimeTriggerHandler');
+    insert showtime;
+    TriggerHandler.clearBypass('ShowtimeTriggerHandler');
+
+    Test.startTest();
+
+    // Check if seats exist before calling generateSeats
+    Integer existingCount = [
+      SELECT COUNT()
+      FROM Seat__c
+      WHERE Showtime__c = :showtime.Id
+    ];
+    System.debug('Existing seats count before generateSeats: ' + existingCount);
+
+    // Call generateSeats
+    List<Seat__c> seats = SeatManagementService.generateSeats(showtime.Id);
+    System.debug('Seats returned by generateSeats: ' + seats.size());
+
+    // Check if seats exist after calling generateSeats
+    Integer afterCount = [
+      SELECT COUNT()
+      FROM Seat__c
+      WHERE Showtime__c = :showtime.Id
+    ];
+    System.debug('Existing seats count after generateSeats: ' + afterCount);
+
+    Test.stopTest();
+
+    System.assert(!seats.isEmpty(), 'Seats should be created');
+    System.assertEquals(100, seats.size(), 'Should create 100 seats (10x10)');
+  }
 }

@@ -23,31 +23,9 @@ export default class CinemaBooking extends LightningElement {
         console.log('📅 Default date set to:', this.selectedDate);
     }
 
-    handleDateChange(event) {
-        try {
-            this.selectedDate = event.target.value;
-            this.loadShowtimes();
-        } catch (error) {
-            console.error('❌ Error handling date change:', error);
-            this.dispatchEvent(
-                new ShowToastEvent({
-                    title: 'Erro ao alterar a data',
-                    message: error?.body?.message || error?.message || 'Não foi possível atualizar os horários.',
-                    variant: 'error',
-                    mode: 'sticky'
-                })
-            );
-        }
-    }
-
     get isStep1() { return this.currentStep === 1; }
     get isStep2() { return this.currentStep === 2; }
     get isStep3() { return this.currentStep === 3; }
-
-    // lightning-progress-indicator expects a string value
-    get currentStepStr() {
-        return String(this.currentStep);
-    }
 
     get progressValue() {
         return (this.currentStep / 3) * 100;
@@ -221,21 +199,8 @@ export default class CinemaBooking extends LightningElement {
         this.showConfirmationModal = false;
     }
 
-    handleReservationSuccess(event) {
-        // Close modal and reset flow
+    handleReservationSuccess() {
         this.showConfirmationModal = false;
-        
-        // Show success toast with confirmation code if available
-        const reservation = event?.detail?.reservation;
-        const code = reservation?.Confirmation_Code__c;
-        this.dispatchEvent(
-            new ShowToastEvent({
-                title: 'Reserva confirmada',
-                message: code ? `Código de confirmação: ${code}` : 'Sua reserva foi confirmada com sucesso.',
-                variant: 'success'
-            })
-        );
-
         this.handleStartOver();
     }
 
