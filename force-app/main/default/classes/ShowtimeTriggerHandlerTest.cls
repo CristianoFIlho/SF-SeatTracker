@@ -7,7 +7,26 @@
 private class ShowtimeTriggerHandlerTest {
   @TestSetup
   static void setupTestData() {
-    Movie__c movie = new Movie__c(
+    Movie  @isTest
+  static void testBypassFunctionality() {
+    // Test bypass functionality following Apex Recipes patterns
+    System.assert(
+      !TriggerHandler.isHandlerBypassed('ShowtimeTriggerHandler'),
+      'Handler should not be bypassed initially'
+    );
+
+    TriggerHandler.bypass('ShowtimeTriggerHandler');
+    System.assert(
+      TriggerHandler.isHandlerBypassed('ShowtimeTriggerHandler'),
+      'Handler should be bypassed after bypass call'
+    );
+
+    TriggerHandler.clearBypass('ShowtimeTriggerHandler');
+    System.assert(
+      !TriggerHandler.isHandlerBypassed('ShowtimeTriggerHandler'),
+      'Handler should not be bypassed after clear'
+    );
+  }e__c(
       Name = 'Test Movie',
       Movie_API_ID__c = 'test123',
       Is_Active__c = true
@@ -96,9 +115,18 @@ private class ShowtimeTriggerHandlerTest {
     insert showtime;
 
     Test.startTest();
-    // Test direct handler execution
-    List<Showtime__c> showtimes = new List<Showtime__c>{ showtime };
-    ShowtimeTriggerHandler.handleAfterInsert(showtimes);
+    // Test direct handler execution by creating a new showtime (trigger will execute)
+    Showtime__c newShowtime = new Showtime__c(
+      Movie__c = movie.Id,
+      Theater__c = theater.Id,
+      Session_Date__c = Date.today().addDays(2),
+      Session_Time__c = Time.newInstance(16, 0, 0, 0),
+      Total_Seats__c = 100,
+      Reserved_Seats__c = 0,
+      Ticket_Price__c = 18.00,
+      Status__c = 'Scheduled'
+    );
+    insert newShowtime;
     Test.stopTest();
 
     // Verify seats were generated
@@ -293,29 +321,29 @@ private class ShowtimeTriggerHandlerTest {
     );
   }
 
-  @isTest
+    @isTest
   static void testClearAllBypasses() {
     // Test clear all bypasses functionality
     TriggerHandler.bypass('ShowtimeTriggerHandler');
     TriggerHandler.bypass('AnotherHandler');
 
     System.assert(
-      TriggerHandler.isBypassed('ShowtimeTriggerHandler'),
-      'Handler should be bypassed'
+      TriggerHandler.isHandlerBypassed('ShowtimeTriggerHandler'),
+      'ShowtimeTriggerHandler should be bypassed'
     );
     System.assert(
-      TriggerHandler.isBypassed('AnotherHandler'),
-      'Another handler should be bypassed'
+      TriggerHandler.isHandlerBypassed('AnotherHandler'),
+      'AnotherHandler should be bypassed'
     );
 
     TriggerHandler.clearAllBypasses();
     System.assert(
-      !TriggerHandler.isBypassed('ShowtimeTriggerHandler'),
-      'Handler should not be bypassed after clear all'
+      !TriggerHandler.isHandlerBypassed('ShowtimeTriggerHandler'),
+      'ShowtimeTriggerHandler should not be bypassed after clear all'
     );
     System.assert(
-      !TriggerHandler.isBypassed('AnotherHandler'),
-      'Another handler should not be bypassed after clear all'
+      !TriggerHandler.isHandlerBypassed('AnotherHandler'),
+      'AnotherHandler should not be bypassed after clear all'
     );
   }
 
@@ -401,9 +429,16 @@ private class ShowtimeTriggerHandlerTest {
   static void testExceptionHandlingPattern() {
     // Test exception handling following Apex Recipes patterns
     try {
-      // Test with null input to trigger exception
-      ShowtimeTriggerHandler.handleAfterInsert(null);
-      System.assert(false, 'Should have thrown exception for null input');
+      // Test with invalid showtime data to trigger exception
+      Showtime__c invalidShowtime = new Showtime__c(
+        Session_Date__c = Date.today().addDays(1),
+        Session_Time__c = Time.newInstance(14, 30, 0, 0),
+        Total_Seats__c = -1, // Invalid seat count
+        Status__c = 'Scheduled'
+        // Missing required Movie__c and Theater__c
+      );
+      insert invalidShowtime;
+      System.assert(false, 'Should have thrown exception for invalid input');
     } catch (Exception e) {
       System.assert(
         e.getMessage().contains('Failed to generate seats') ||

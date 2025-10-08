@@ -211,7 +211,7 @@ private class MovieGluServiceTest {
   }
 
   @isTest
-  static void testSyncCinemasWithInvalidParameters() {
+  static void testSyncNearbyTheatersWithInvalidParameters() {
     Test.setMock(
       HttpCalloutMock.class,
       new MovieGluHttpCalloutMock('cinemas', 200)
@@ -221,7 +221,7 @@ private class MovieGluServiceTest {
 
     // Test with null coordinates
     try {
-      MovieGluService.syncCinemas(null, null);
+      MovieGluService.syncNearbyTheaters(null, null, 10);
       System.assert(false, 'Should have thrown exception for null coordinates');
     } catch (MovieGluService.MovieGluServiceException e) {
       System.assert(
@@ -295,16 +295,17 @@ private class MovieGluServiceTest {
     );
     System.assert(movies.size() > 0, 'Should sync multiple movies');
 
-    // Test bulk cinema sync
+    // Test bulk theater sync
     Test.setMock(
       HttpCalloutMock.class,
       new MovieGluHttpCalloutMock('cinemas', 200)
     );
-    List<Theater__c> cinemas = MovieGluService.syncCinemas(
+    List<Theater__c> theaters = MovieGluService.syncNearbyTheaters(
       '-23.5505',
-      '-46.6333'
+      '-46.6333',
+      10
     );
-    System.assert(cinemas.size() > 0, 'Should sync multiple cinemas');
+    System.assert(theaters.size() > 0, 'Should sync multiple theaters');
 
     Test.stopTest();
   }

@@ -1,7 +1,8 @@
 /**
  * @description TestHelper utility class following Context7 Apex Recipes patterns
- * @author Based on Apex Recipes TestHelper implementation
+ * @author Based on Apex Recipes TestHelper implementation  
  * @date 2025-01-27
+ * Updated: Fixed syntax issues and improved error handling
  */
 @isTest
 public class TestHelper {

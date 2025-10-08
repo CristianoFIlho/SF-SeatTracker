@@ -94,6 +94,14 @@ public abstract class TriggerHandler {
   }
 
   /**
+   * @description Public method to check if handler is bypassed (for testing)
+   */
+  @TestVisible
+  public static Boolean isHandlerBypassed(String handlerName) {
+    return bypassedHandlers.containsKey(handlerName);
+  }
+
+  /**
    * @description Bypass a specific handler
    */
   public static void bypass(String handlerName) {

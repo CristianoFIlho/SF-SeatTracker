@@ -74,10 +74,10 @@ public class TestDouble implements System.StubProvider {
     if (returnType == String.class) {
       return '';
     }
-    if (returnType == List.class) {
+    if (returnType == List<Object>.class) {
       return new List<Object>();
     }
-    if (returnType == Map.class) {
+    if (returnType == Map<String, Object>.class) {
       return new Map<String, Object>();
     }
 
