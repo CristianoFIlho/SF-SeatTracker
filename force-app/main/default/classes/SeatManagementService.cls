@@ -9,7 +9,7 @@ public with sharing class SeatManagementService {
   private static Boolean testCircuitBreaker = false;
   @TestVisible
   private static Boolean circuitBreakerThrown = false;
-  private static final String[] ROWS = new List<String>{
+  private static final List<String> ROW_LABELS = new List<String>{
     'A',
     'B',
     'C',
@@ -19,7 +19,23 @@ public with sharing class SeatManagementService {
     'G',
     'H',
     'I',
-    'J'
+    'J',
+    'K',
+    'L',
+    'M',
+    'N',
+    'O',
+    'P',
+    'Q',
+    'R',
+    'S',
+    'T',
+    'U',
+    'V',
+    'W',
+    'X',
+    'Y',
+    'Z'
   };
 
   /**
@@ -55,6 +71,7 @@ public with sharing class SeatManagementService {
             'Insufficient permissions to create seats'
           );
         }
+        return seatsToInsert;
       }
 
       // Check if we have the required fields accessible
@@ -82,19 +99,16 @@ public with sharing class SeatManagementService {
         );
       }
       // Use default values if not provided
-      if (numRows == null) {
-        numRows = 10; // Default rows
-      }
-      if (seatsPerRow == null) {
-        seatsPerRow = 10; // Default seats per row
-      }
-
-      // Validate parameters
-      if (numRows <= 0) {
+      if (numRows == null || numRows <= 0) {
         numRows = 10;
       }
-      if (seatsPerRow <= 0) {
+      if (seatsPerRow == null || seatsPerRow <= 0) {
         seatsPerRow = 10;
+      }
+
+      Integer maxRowsSupported = Math.min(numRows, ROW_LABELS.size());
+      if (maxRowsSupported <= 0) {
+        return seatsToInsert;
       }
 
       // Check if seats already exist for this showtime
@@ -106,30 +120,36 @@ public with sharing class SeatManagementService {
 
       if (existingCount > 0) {
         System.debug('Seats already exist for showtime: ' + showtimeId);
-        return new List<Seat__c>();
+        return seatsToInsert;
       }
 
       System.debug(
-        'Generating ' + numRows + ' rows with ' + seatsPerRow + ' seats per row'
+        'Generating ' +
+          maxRowsSupported +
+          ' rows with ' +
+          seatsPerRow +
+          ' seats per row'
       );
 
       // Generate seats using default row letters
-      for (Integer row = 0; row < numRows; row++) {
-        String rowLetter = ROWS[row];
+      for (Integer rowIndex = 0; rowIndex < maxRowsSupported; rowIndex++) {
+        String rowLabel = ROW_LABELS[rowIndex];
 
         for (Integer seatNum = 1; seatNum <= seatsPerRow; seatNum++) {
           Seat__c seat = new Seat__c();
           seat.Showtime__c = showtimeId;
-          seat.Row__c = rowLetter;
+          seat.Row__c = rowLabel;
           seat.Number__c = seatNum;
-          seat.Name = rowLetter + '-' + seatNum;
+          seat.Name = rowLabel + '-' + seatNum;
           seat.Status__c = 'Available';
 
           // Assign seat types based on position
-          if (row < 2) {
+          if (rowIndex < 2) {
             seat.Seat_Type__c = 'VIP';
           } else if (
-            row == numRows - 1 && (seatNum == 1 || seatNum == seatsPerRow)
+            rowIndex == maxRowsSupported - 1 &&
+            (seatNum == 1 ||
+            seatNum == seatsPerRow)
           ) {
             seat.Seat_Type__c = 'Wheelchair';
           } else {

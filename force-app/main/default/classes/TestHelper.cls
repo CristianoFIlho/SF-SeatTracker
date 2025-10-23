@@ -117,7 +117,7 @@ public class TestHelper {
   public static User createTestUser(String profileName, String username) {
     Profile profile = [SELECT Id FROM Profile WHERE Name = :profileName LIMIT 1];
     
-    User testUser = new User(
+    return new User(
       FirstName = 'Test',
       LastName = 'User',
       Email = username + '@test.com',
@@ -129,19 +129,5 @@ public class TestHelper {
       LanguageLocaleKey = 'en_US',
       ProfileId = profile.Id
     );
-    
-    return testUser;
-  }
-
-  /**
-   * @description Run tests as a specific user
-   * @param testUser The user to run tests as
-   * @param testMethod The test method to run
-   */
-  public static void runAsUser(User testUser, String testMethod) {
-    System.runAs(testUser) {
-      // This would need to be implemented based on specific test requirements
-      System.debug('Running test method: ' + testMethod + ' as user: ' + testUser.Username);
-    }
   }
 }

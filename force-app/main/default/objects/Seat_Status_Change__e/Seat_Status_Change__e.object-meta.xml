@@ -5,32 +5,4 @@
     <label>Seat Status Change</label>
     <pluralLabel>Seat Status Changes</pluralLabel>
     <publishBehavior>PublishAfterCommit</publishBehavior>
-    <fields>
-        <fullName>Showtime_Id__c</fullName>
-        <label>Showtime Id</label>
-        <type>Text</type>
-        <length>18</length>
-        <required>true</required>
-    </fields>
-    <fields>
-        <fullName>Seat_Id__c</fullName>
-        <label>Seat Id</label>
-        <type>Text</type>
-        <length>18</length>
-        <required>true</required>
-    </fields>
-    <fields>
-        <fullName>New_Status__c</fullName>
-        <label>New Status</label>
-        <type>Text</type>
-        <length>20</length>
-        <required>true</required>
-    </fields>
-    <fields>
-        <fullName>Reservation_Id__c</fullName>
-        <label>Reservation Id</label>
-        <type>Text</type>
-        <length>18</length>
-        <required>false</required>
-    </fields>
 </CustomObject>

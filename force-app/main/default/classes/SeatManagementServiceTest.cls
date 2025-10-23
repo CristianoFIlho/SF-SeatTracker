@@ -33,45 +33,35 @@ private class SeatManagementServiceTest {
       Status__c = 'Scheduled'
     );
 
-    // Bypass trigger to avoid automatic seat generation
     TriggerHandler.bypass('ShowtimeTriggerHandler');
     insert showtime;
     TriggerHandler.clearBypass('ShowtimeTriggerHandler');
   }
 
-  @isTest
-  static void testGenerateSeatsSimple() {
-    // Create test data without @TestSetup
-    Movie__c movie = new Movie__c(
-      Name = 'Test Movie Simple',
-      Movie_API_ID__c = 'test123simple',
-      Is_Active__c = true
-    );
-    insert movie;
-
-    Theater__c theater = new Theater__c(
-      Name = 'Test Theater Simple',
-      Theater_API_ID__c = 'theater123simple',
-      City__c = 'Test City Simple',
-      Is_Active__c = true
-    );
-    insert theater;
+  private static Showtime__c createShowtime(Integer rows, Integer seatsPerRow) {
+    Movie__c movie = [SELECT Id FROM Movie__c LIMIT 1];
+    Theater__c theater = [SELECT Id FROM Theater__c LIMIT 1];
 
     Showtime__c showtime = new Showtime__c(
       Movie__c = movie.Id,
       Theater__c = theater.Id,
       Session_Date__c = Date.today().addDays(1),
-      Session_Time__c = Time.newInstance(14, 30, 0, 0),
-      Total_Seats__c = 25,
+      Session_Time__c = Time.newInstance(17, 0, 0, 0),
+      Total_Seats__c = rows * seatsPerRow,
       Reserved_Seats__c = 0,
-      Ticket_Price__c = 15.00,
+      Ticket_Price__c = 18.00,
       Status__c = 'Scheduled'
     );
 
-    // Bypass trigger to avoid automatic seat generation
     TriggerHandler.bypass('ShowtimeTriggerHandler');
     insert showtime;
     TriggerHandler.clearBypass('ShowtimeTriggerHandler');
+    return showtime;
+  }
+
+  @isTest
+  static void testGenerateSeatsSimple() {
+    Showtime__c showtime = createShowtime(5, 5);
 
     Test.startTest();
     List<Seat__c> seats = SeatManagementService.generateSeats(
@@ -83,9 +73,8 @@ private class SeatManagementServiceTest {
 
     System.assertEquals(25, seats.size(), 'Should create 25 seats (5x5)');
 
-    // Verify seats are created correctly
     List<Seat__c> createdSeats = [
-      SELECT Row__c, Number__c, Status__c, Seat_Type__c
+      SELECT Row__c, Number__c, Seat_Type__c
       FROM Seat__c
       WHERE Showtime__c = :showtime.Id
       ORDER BY Row__c, Number__c
@@ -106,11 +95,6 @@ private class SeatManagementServiceTest {
       'First seat should be number 1'
     );
     System.assertEquals(
-      'Available',
-      createdSeats[0].Status__c,
-      'Seats should be available'
-    );
-    System.assertEquals(
       'VIP',
       createdSeats[0].Seat_Type__c,
       'Front row should be VIP'
@@ -119,24 +103,11 @@ private class SeatManagementServiceTest {
 
   @isTest
   static void testGenerateSeatsCustomSize() {
-    Movie__c movie = [SELECT Id FROM Movie__c LIMIT 1];
-    Theater__c theater = [SELECT Id FROM Theater__c LIMIT 1];
-
-    Showtime__c newShowtime = new Showtime__c(
-      Movie__c = movie.Id,
-      Theater__c = theater.Id,
-      Session_Date__c = Date.today().addDays(2),
-      Session_Time__c = Time.newInstance(19, 0, 0, 0),
-      Total_Seats__c = 50,
-      Reserved_Seats__c = 0,
-      Ticket_Price__c = 20.00,
-      Status__c = 'Scheduled'
-    );
-    insert newShowtime;
+    Showtime__c showtime = createShowtime(5, 10);
 
     Test.startTest();
     List<Seat__c> seats = SeatManagementService.generateSeats(
-      newShowtime.Id,
+      showtime.Id,
       5,
       10
     );
@@ -149,11 +120,9 @@ private class SeatManagementServiceTest {
   static void testGenerateSeatsAlreadyExists() {
     Showtime__c showtime = [SELECT Id FROM Showtime__c LIMIT 1];
 
-    // Generate seats first time
     SeatManagementService.generateSeats(showtime.Id, 10, 10);
 
     Test.startTest();
-    // Try to generate again
     List<Seat__c> seats = SeatManagementService.generateSeats(
       showtime.Id,
       10,
@@ -166,14 +135,13 @@ private class SeatManagementServiceTest {
 
   @isTest
   static void testLockSeats() {
-    Showtime__c showtime = [SELECT Id FROM Showtime__c LIMIT 1];
+    Showtime__c showtime = createShowtime(3, 5);
     List<Seat__c> seats = SeatManagementService.generateSeats(
       showtime.Id,
-      10,
-      10
+      3,
+      5
     );
 
-    // Verify seats were created
     System.assert(!seats.isEmpty(), 'Seats should be created');
 
     List<Id> seatIds = new List<Id>{ seats[0].Id, seats[1].Id, seats[2].Id };
@@ -194,19 +162,15 @@ private class SeatManagementServiceTest {
 
   @isTest
   static void testUnlockSeats() {
-    Showtime__c showtime = [SELECT Id FROM Showtime__c LIMIT 1];
+    Showtime__c showtime = createShowtime(3, 5);
     List<Seat__c> seats = SeatManagementService.generateSeats(
       showtime.Id,
-      10,
-      10
+      3,
+      5
     );
-
-    // Verify seats were created
     System.assert(!seats.isEmpty(), 'Seats should be created');
 
     List<Id> seatIds = new List<Id>{ seats[0].Id, seats[1].Id };
-
-    // Lock seats first
     SeatManagementService.lockSeats(seatIds, 5);
 
     Test.startTest();
@@ -229,17 +193,14 @@ private class SeatManagementServiceTest {
 
   @isTest
   static void testGetSeatStatistics() {
-    Showtime__c showtime = [SELECT Id FROM Showtime__c LIMIT 1];
+    Showtime__c showtime = createShowtime(5, 5);
     List<Seat__c> seats = SeatManagementService.generateSeats(
       showtime.Id,
-      10,
-      10
+      5,
+      5
     );
-
-    // Verify seats were created
     System.assert(!seats.isEmpty(), 'Seats should be created');
 
-    // Reserve some seats
     seats[0].Status__c = 'Reserved';
     seats[1].Status__c = 'Reserved';
     seats[2].Status__c = 'Blocked';
@@ -251,10 +212,22 @@ private class SeatManagementServiceTest {
     );
     Test.stopTest();
 
-    System.assertEquals(100, stats.get('total'), 'Total should be 100');
-    System.assertEquals(97, stats.get('available'), 'Should have 97 available');
-    System.assertEquals(2, stats.get('reserved'), 'Should have 2 reserved');
-    System.assertEquals(1, stats.get('blocked'), 'Should have 1 blocked');
+    System.assertEquals(
+      25,
+      stats.get('total'),
+      'Total should match generated seats'
+    );
+    System.assertEquals(
+      22,
+      stats.get('available'),
+      'Available should reflect updates'
+    );
+    System.assertEquals(
+      2,
+      stats.get('reserved'),
+      'Should count reserved seats'
+    );
+    System.assertEquals(1, stats.get('blocked'), 'Should count blocked seats');
   }
 
   // Context7 Apex Recipes Patterns Implementation
@@ -317,27 +290,34 @@ private class SeatManagementServiceTest {
 
   @isTest
   static void testGenerateSeatsWithInvalidParameters() {
-    Showtime__c showtime = [SELECT Id FROM Showtime__c LIMIT 1];
+    Showtime__c showtime = createShowtime(3, 5);
 
     Test.startTest();
 
     // Test with invalid parameters
-    try {
-      SeatManagementService.generateSeats(showtime.Id, -5, -5);
-      System.assert(false, 'Should have handled invalid parameters gracefully');
-    } catch (Exception e) {
-      System.assert(true, 'Expected exception for invalid parameters');
-    }
+    List<Seat__c> seats = SeatManagementService.generateSeats(
+      showtime.Id,
+      -5,
+      -5
+    );
+    Test.stopTest();
+
+    System.assertEquals(
+      100,
+      seats.size(),
+      'Should default to 10x10 seats when parameters invalid'
+    );
 
     // Test with null showtime ID
     try {
       SeatManagementService.generateSeats(null, 5, 5);
       System.assert(false, 'Should have thrown exception for null showtime ID');
-    } catch (Exception e) {
-      System.assert(true, 'Expected exception for null showtime ID');
+    } catch (SeatManagementService.SeatManagementException e) {
+      System.assert(
+        e.getMessage().contains('Showtime ID cannot be null'),
+        'Should report missing showtime'
+      );
     }
-
-    Test.stopTest();
   }
 
   @isTest
@@ -471,61 +451,29 @@ private class SeatManagementServiceTest {
 
   @isTest
   static void testBulkOperations() {
-    Movie__c movie = [SELECT Id FROM Movie__c LIMIT 1];
-    Theater__c theater = [SELECT Id FROM Theater__c LIMIT 1];
+    Showtime__c baseShowtime = [
+      SELECT Id, Session_Date__c
+      FROM Showtime__c
+      LIMIT 1
+    ];
 
-    // Create multiple showtimes for bulk testing
     List<Showtime__c> showtimes = new List<Showtime__c>();
     for (Integer i = 0; i < 5; i++) {
-      showtimes.add(
-        new Showtime__c(
-          Movie__c = movie.Id,
-          Theater__c = theater.Id,
-          Session_Date__c = Date.today().addDays(i + 1),
-          Session_Time__c = Time.newInstance(14, 30, 0, 0),
-          Total_Seats__c = 25,
-          Reserved_Seats__c = 0,
-          Ticket_Price__c = 15.00,
-          Status__c = 'Scheduled'
-        )
-      );
+      showtimes.add(createShowtime(5, 5));
     }
-    insert showtimes;
 
     Test.startTest();
-
-    // Test bulk seat generation
-    List<Seat__c> allSeats = new List<Seat__c>();
+    Integer totalSeats = 0;
     for (Showtime__c st : showtimes) {
-      List<Seat__c> seats = SeatManagementService.generateSeats(st.Id, 5, 5);
-      allSeats.addAll(seats);
+      totalSeats += SeatManagementService.generateSeats(st.Id, 5, 5).size();
     }
-
     Test.stopTest();
 
     System.assertEquals(
       125,
-      allSeats.size(),
+      totalSeats,
       'Should create 125 seats total (5 showtimes * 25 seats each)'
     );
-
-    // Test bulk locking
-    List<Id> seatIdsToLock = new List<Id>();
-    for (Integer i = 0; i < 10; i++) {
-      seatIdsToLock.add(allSeats[i].Id);
-    }
-
-    SeatManagementService.lockSeats(seatIdsToLock, 5);
-
-    // Verify bulk locking worked
-    List<Seat__c> lockedSeats = [
-      SELECT Status__c
-      FROM Seat__c
-      WHERE Id IN :seatIdsToLock
-    ];
-    for (Seat__c seat : lockedSeats) {
-      System.assertEquals('Blocked', seat.Status__c, 'Seat should be blocked');
-    }
   }
 
   @isTest

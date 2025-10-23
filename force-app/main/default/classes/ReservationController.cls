@@ -4,11 +4,17 @@
  * @date 2025-09-30
  */
 public with sharing class ReservationController {
-  // Circuit breaker pattern for testing
   @TestVisible
-  private static Boolean testCircuitBreaker = false;
+  static Boolean testCircuitBreaker = false;
   @TestVisible
-  private static Boolean circuitBreakerThrown = false;
+  static Boolean circuitBreakerThrown = false;
+
+  private static void enforceCircuitBreaker() {
+    if (testCircuitBreaker) {
+      circuitBreakerThrown = true;
+      throw new AuraHandledException('Circuit breaker activated for testing');
+    }
+  }
 
   /**
    * @description Get active movies
@@ -37,11 +43,7 @@ public with sharing class ReservationController {
         );
       }
 
-      // Circuit breaker pattern for testing
-      if (testCircuitBreaker) {
-        circuitBreakerThrown = true;
-        throw new AuraHandledException('Circuit breaker activated for testing');
-      }
+      enforceCircuitBreaker();
 
       return [
         SELECT
@@ -108,6 +110,8 @@ public with sharing class ReservationController {
           'Insufficient field permissions to read showtimes'
         );
       }
+
+      enforceCircuitBreaker();
 
       return [
         SELECT
@@ -179,6 +183,8 @@ public with sharing class ReservationController {
           'Insufficient field permissions to read seats'
         );
       }
+
+      enforceCircuitBreaker();
 
       return [
         SELECT
@@ -272,7 +278,7 @@ public with sharing class ReservationController {
   public static Reservation__c createReservation(
     Id showtimeId,
     List<Id> seatIds,
-    String customerInfo
+    String customerInfoJson
   ) {
     Savepoint sp = Database.setSavepoint();
 
@@ -299,19 +305,15 @@ public with sharing class ReservationController {
         throw new ReservationException('Seat IDs cannot be null or empty');
       }
 
-      if (String.isBlank(customerInfo)) {
+      if (String.isBlank(customerInfoJson)) {
         throw new ReservationException('Customer info cannot be blank');
       }
 
-      // Circuit breaker pattern for testing
-      if (testCircuitBreaker) {
-        circuitBreakerThrown = true;
-        throw new ReservationException('Circuit breaker activated for testing');
-      }
+      enforceCircuitBreaker();
 
       // Parse customer info
       Map<String, Object> customerData = (Map<String, Object>) JSON.deserializeUntyped(
-        customerInfo
+        customerInfoJson
       );
 
       // Validate customer data
@@ -449,7 +451,7 @@ public with sharing class ReservationController {
   public static Reservation__c createReservationWithPayment(
     Id showtimeId,
     List<Id> seatIds,
-    String customerInfo,
+    String customerInfoJson,
     String paymentMethodId
   ) {
     Savepoint sp = Database.setSavepoint();
@@ -457,7 +459,7 @@ public with sharing class ReservationController {
     try {
       // Parse customer info
       Map<String, Object> customerData = (Map<String, Object>) JSON.deserializeUntyped(
-        customerInfo
+        customerInfoJson
       );
 
       // Validate seats are available
@@ -749,33 +751,14 @@ public with sharing class ReservationController {
    * @return String confirmation code (e.g., "ABC123XYZ")
    */
   private static String generateConfirmationCode() {
-    String chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    String code = '';
-
-    while (true) {
-      code = '';
-      for (Integer i = 0; i < 9; i++) {
-        Integer idx = Math.mod(
-          Math.abs(Crypto.getRandomInteger()),
-          chars.length()
-        );
-        code += chars.substring(idx, idx + 1);
-      }
-
-      // Check uniqueness
-      List<Reservation__c> existing = [
-        SELECT Id
-        FROM Reservation__c
-        WHERE Confirmation_Code__c = :code
-        LIMIT 1
-      ];
-
-      if (existing.isEmpty()) {
-        break;
-      }
-    }
-
-    return code;
+    return EncodingUtil.convertToHex(
+        Crypto.generateDigest(
+          'SHA1',
+          Blob.valueOf(String.valueOf(System.now().getTime()))
+        )
+      )
+      .substring(0, 9)
+      .toUpperCase();
   }
 
   /**

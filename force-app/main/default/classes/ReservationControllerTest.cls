@@ -7,7 +7,6 @@
 private class ReservationControllerTest {
   @TestSetup
   static void setupTestData() {
-    // Create movie
     Movie__c movie = new Movie__c(
       Name = 'Test Movie',
       Movie_API_ID__c = 'test123',
@@ -15,7 +14,6 @@ private class ReservationControllerTest {
     );
     insert movie;
 
-    // Create theater
     Theater__c theater = new Theater__c(
       Name = 'Test Theater',
       Theater_API_ID__c = 'theater123',
@@ -24,7 +22,6 @@ private class ReservationControllerTest {
     );
     insert theater;
 
-    // Create showtime
     Showtime__c showtime = new Showtime__c(
       Movie__c = movie.Id,
       Theater__c = theater.Id,
@@ -36,26 +33,11 @@ private class ReservationControllerTest {
       Status__c = 'Scheduled'
     );
 
-    // Bypass trigger to avoid automatic seat generation
     TriggerHandler.bypass('ShowtimeTriggerHandler');
     insert showtime;
     TriggerHandler.clearBypass('ShowtimeTriggerHandler');
 
-    // Create seats manually
-    List<Seat__c> seats = new List<Seat__c>();
-    for (Integer i = 1; i <= 10; i++) {
-      seats.add(
-        new Seat__c(
-          Showtime__c = showtime.Id,
-          Row__c = 'A',
-          Number__c = i,
-          Name = 'A-' + i,
-          Status__c = 'Available',
-          Seat_Type__c = 'Standard'
-        )
-      );
-    }
-    insert seats;
+    SeatManagementService.generateSeats(showtime.Id, 10, 10);
   }
 
   @isTest
@@ -129,6 +111,17 @@ private class ReservationControllerTest {
       2,
       reservation.Number_of_Seats__c,
       'Should have 2 seats'
+    );
+
+    Reservation__c refreshedReservation = [
+      SELECT Payment_Status__c
+      FROM Reservation__c
+      WHERE Id = :reservation.Id
+    ];
+    System.assertEquals(
+      'Pending',
+      refreshedReservation.Payment_Status__c,
+      'Reservation should remain Pending before payment'
     );
     System.assertEquals(
       30.00,
@@ -334,6 +327,66 @@ private class ReservationControllerTest {
     // Reset circuit breaker
     ReservationController.testCircuitBreaker = false;
     ReservationController.circuitBreakerThrown = false;
+  }
+
+  @isTest
+  static void testCreateReservationWithPaymentSuccess() {
+    Showtime__c showtime = [SELECT Id FROM Showtime__c LIMIT 1];
+    List<Seat__c> seats = [
+      SELECT Id, Row__c, Number__c
+      FROM Seat__c
+      WHERE Showtime__c = :showtime.Id
+      LIMIT 2
+    ];
+
+    String customerInfo = '{"name":"Paying User","email":"paying@test.com","phone":"1234567890"}';
+
+    Reservation__c reservation = ReservationController.createReservationWithPayment(
+      showtime.Id,
+      new List<Id>{ seats[0].Id, seats[1].Id },
+      customerInfo,
+      'pm_real_flow'
+    );
+
+    System.assertEquals(
+      'Confirmed',
+      reservation.Status__c,
+      'Reservation should be confirmed after payment'
+    );
+    System.assertEquals(
+      'Paid',
+      reservation.Payment_Status__c,
+      'Payment status should be Paid'
+    );
+
+    List<Seat__c> reservedSeats = [
+      SELECT Status__c, Reservation__c
+      FROM Seat__c
+      WHERE Id IN :new List<Id>{ seats[0].Id, seats[1].Id }
+    ];
+    for (Seat__c seat : reservedSeats) {
+      System.assertEquals(
+        'Reserved',
+        seat.Status__c,
+        'Seat should be reserved'
+      );
+      System.assertEquals(
+        reservation.Id,
+        seat.Reservation__c,
+        'Seat should relate to reservation'
+      );
+    }
+
+    Showtime__c updatedShowtime = [
+      SELECT Reserved_Seats__c
+      FROM Showtime__c
+      WHERE Id = :showtime.Id
+    ];
+    System.assertEquals(
+      2,
+      updatedShowtime.Reserved_Seats__c,
+      'Showtime reserved seats should increment'
+    );
   }
 
   @isTest

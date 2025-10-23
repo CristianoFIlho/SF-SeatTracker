@@ -1,13 +1,35 @@
 /**
  * @description Test class for PaymentService following Context7 Apex Recipes patterns
- * @author Cristiano Filho
- * @date 2025-01-27
  */
 @isTest
 public class PaymentServiceTest {
-  @TestSetup
-  static void setupTestData() {
-    // Create test theater
+  private class TestData {
+    Reservation__c reservation;
+    List<Seat__c> seats;
+
+    TestData(Reservation__c reservation, List<Seat__c> seats) {
+      this.reservation = reservation;
+      this.seats = seats;
+    }
+  }
+
+  private static TestData createConfirmedReservation() {
+    return createConfirmedReservation(null, null, null);
+  }
+
+  private static TestData createConfirmedReservation(
+    Decimal ticketPriceOverride,
+    Decimal totalAmountOverride,
+    Integer seatCountOverride
+  ) {
+    Integer seatCount = seatCountOverride != null ? seatCountOverride : 2;
+    Decimal ticketPrice = ticketPriceOverride != null
+      ? ticketPriceOverride
+      : 15;
+    Decimal totalAmount = totalAmountOverride != null
+      ? totalAmountOverride
+      : (ticketPrice * seatCount);
+
     Theater__c theater = new Theater__c(
       Name = 'Test Theater',
       Address__c = '123 Test St',
@@ -18,7 +40,6 @@ public class PaymentServiceTest {
     );
     insert theater;
 
-    // Create test movie
     Movie__c movie = new Movie__c(
       Name = 'Test Movie',
       Synopsis__c = 'Test Synopsis',
@@ -30,52 +51,62 @@ public class PaymentServiceTest {
     );
     insert movie;
 
-    // Create test showtime
     Showtime__c showtime = new Showtime__c(
       Movie__c = movie.Id,
       Theater__c = theater.Id,
       Session_Date__c = Date.today().addDays(1),
       Session_Time__c = Time.newInstance(19, 0, 0, 0),
-      Ticket_Price__c = 15.00,
+      Ticket_Price__c = ticketPrice,
       Status__c = 'Scheduled',
       Reserved_Seats__c = 0,
       Total_Seats__c = 96
     );
     insert showtime;
 
-    // Generate seats
-    SeatManagementService.generateSeats(showtime.Id);
+    List<Seat__c> seats = SeatManagementService.generateSeats(
+      showtime.Id,
+      8,
+      12
+    );
 
-    // Create test reservation
+    List<String> seatLabels = new List<String>();
+    for (Integer i = 0; i < seatCount && i < seats.size(); i++) {
+      seatLabels.add(seats[i].Name);
+    }
+    if (seatLabels.isEmpty()) {
+      seatLabels.add('A-1');
+    }
+
     Reservation__c reservation = new Reservation__c(
       Showtime__c = showtime.Id,
       Movie__c = movie.Id,
       Customer_Name__c = 'Test Customer',
       Customer_Email__c = 'test@example.com',
       Customer_Phone__c = '1234567890',
-      Number_of_Seats__c = 2,
-      Total_Amount__c = 30.00,
+      Number_of_Seats__c = seatCount,
+      Total_Amount__c = totalAmount,
       Status__c = 'Confirmed',
       Payment_Status__c = 'Pending',
       Confirmation_Code__c = 'TEST123',
-      Seat_Numbers__c = 'A-1, A-2'
+      Seat_Numbers__c = String.join(seatLabels, ', ')
     );
     insert reservation;
+
+    return new TestData(reservation, seats);
   }
 
-  @isTest
+  @IsTest
   static void testProcessPaymentSuccess() {
-    Reservation__c reservation = [SELECT Id FROM Reservation__c LIMIT 1];
+    TestData data = createConfirmedReservation();
 
     Test.startTest();
     PaymentService.PaymentResult result = PaymentService.processPayment(
-      reservation.Id,
+      data.reservation.Id,
       'pm_test123',
       30.00
     );
     Test.stopTest();
 
-    // Verify payment result
     System.assertEquals(true, result.success, 'Payment should be successful');
     System.assertNotEquals(
       null,
@@ -88,7 +119,6 @@ public class PaymentServiceTest {
       'Processed amount should match'
     );
 
-    // Verify reservation update
     Reservation__c updatedReservation = [
       SELECT
         Payment_Status__c,
@@ -96,7 +126,7 @@ public class PaymentServiceTest {
         Payment_Transaction_Id__c,
         QR_Code__c
       FROM Reservation__c
-      WHERE Id = :reservation.Id
+      WHERE Id = :data.reservation.Id
     ];
     System.assertEquals(
       'Paid',
@@ -120,22 +150,18 @@ public class PaymentServiceTest {
     );
   }
 
-  @isTest
+  @IsTest
   static void testProcessPaymentFailure() {
-    Reservation__c reservation = [SELECT Id FROM Reservation__c LIMIT 1];
+    TestData data = createConfirmedReservation();
 
     Test.startTest();
     try {
-      PaymentService.PaymentResult result = PaymentService.processPayment(
-        reservation.Id,
-        'pm_test123',
-        1500.00 // Amount exceeds limit
-      );
+      PaymentService.processPayment(data.reservation.Id, 'pm_test123', 1500.00);
       System.assert(
         false,
         'Should have thrown exception for amount exceeding limit'
       );
-    } catch (Exception e) {
+    } catch (AuraHandledException e) {
       System.assert(
         e.getMessage().contains('Payment processing error'),
         'Should throw payment processing error'
@@ -144,15 +170,15 @@ public class PaymentServiceTest {
     Test.stopTest();
   }
 
-  @isTest
+  @IsTest
   static void testProcessPaymentInvalidAmount() {
-    Reservation__c reservation = [SELECT Id FROM Reservation__c LIMIT 1];
+    TestData data = createConfirmedReservation();
 
     Test.startTest();
     try {
-      PaymentService.processPayment(reservation.Id, 'pm_test123', 50.00);
+      PaymentService.processPayment(data.reservation.Id, 'pm_test123', 50.00);
       System.assert(false, 'Should have thrown exception for amount mismatch');
-    } catch (Exception e) {
+    } catch (AuraHandledException e) {
       System.assert(
         e.getMessage().contains('Payment amount does not match'),
         'Should throw amount mismatch error'
@@ -161,20 +187,17 @@ public class PaymentServiceTest {
     Test.stopTest();
   }
 
-  @isTest
+  @IsTest
   static void testProcessRefundSuccess() {
-    Reservation__c reservation = [SELECT Id FROM Reservation__c LIMIT 1];
-
-    // First process payment
-    PaymentService.processPayment(reservation.Id, 'pm_test123', 30.00);
+    TestData data = createConfirmedReservation();
+    PaymentService.processPayment(data.reservation.Id, 'pm_test123', 30.00);
 
     Test.startTest();
     PaymentService.PaymentResult result = PaymentService.processRefund(
-      reservation.Id
+      data.reservation.Id
     );
     Test.stopTest();
 
-    // Verify refund result
     System.assertEquals(true, result.success, 'Refund should be successful');
     System.assertNotEquals(
       null,
@@ -182,11 +205,10 @@ public class PaymentServiceTest {
       'Refund transaction ID should be generated'
     );
 
-    // Verify reservation update
     Reservation__c updatedReservation = [
       SELECT Payment_Status__c, Refund_Transaction_Id__c, Refund_Date__c
       FROM Reservation__c
-      WHERE Id = :reservation.Id
+      WHERE Id = :data.reservation.Id
     ];
     System.assertEquals(
       'Refunded',
@@ -205,18 +227,18 @@ public class PaymentServiceTest {
     );
   }
 
-  @isTest
+  @IsTest
   static void testProcessRefundUnpaidReservation() {
-    Reservation__c reservation = [SELECT Id FROM Reservation__c LIMIT 1];
+    TestData data = createConfirmedReservation();
 
     Test.startTest();
     try {
-      PaymentService.processRefund(reservation.Id);
+      PaymentService.processRefund(data.reservation.Id);
       System.assert(
         false,
         'Should have thrown exception for unpaid reservation'
       );
-    } catch (Exception e) {
+    } catch (AuraHandledException e) {
       System.assert(
         e.getMessage().contains('Cannot refund unpaid reservation'),
         'Should throw unpaid reservation error'
@@ -225,52 +247,48 @@ public class PaymentServiceTest {
     Test.stopTest();
   }
 
-  // Context7 Apex Recipes Patterns Implementation
-
-  @isTest
-  static void testProcessPaymentWithFLSValidation() {
-    Reservation__c reservation = [SELECT Id FROM Reservation__c LIMIT 1];
-    reservation.Status__c = 'Confirmed';
-    update reservation;
+  @IsTest
+  static void testProcessPaymentGatewayFailure() {
+    TestData data = createConfirmedReservation(600, 1200, 2);
 
     Test.startTest();
     PaymentService.PaymentResult result = PaymentService.processPayment(
-      reservation.Id,
-      'pm_test123',
-      30.00
+      data.reservation.Id,
+      'pm_high_amount',
+      1200
     );
     Test.stopTest();
 
-    System.assertEquals(true, result.success, 'Payment should succeed');
-    System.assertNotEquals(
-      null,
-      result.transactionId,
-      'Should have transaction ID'
+    System.assertEquals(
+      false,
+      result.success,
+      'Gateway failure should be reported'
+    );
+    System.assert(
+      result.message.contains('Amount exceeds limit'),
+      'Should describe gateway failure'
     );
 
-    // Verify FLS validation worked
-    System.assert(
-      Schema.sObjectType.Reservation__c.isAccessible(),
-      'Reservation__c should be accessible'
-    );
-    System.assert(
-      Schema.sObjectType.Reservation__c.isUpdateable(),
-      'Reservation__c should be updateable'
+    Reservation__c updatedReservation = [
+      SELECT Payment_Status__c
+      FROM Reservation__c
+      WHERE Id = :data.reservation.Id
+    ];
+    System.assertEquals(
+      'Failed',
+      updatedReservation.Payment_Status__c,
+      'Payment status should be Failed after gateway error'
     );
   }
 
-  @isTest
+  @IsTest
   static void testProcessPaymentWithCircuitBreaker() {
-    Reservation__c reservation = [SELECT Id FROM Reservation__c LIMIT 1];
-    reservation.Status__c = 'Confirmed';
-    update reservation;
-
-    // Activate circuit breaker
+    TestData data = createConfirmedReservation();
     PaymentService.testCircuitBreaker = true;
 
     Test.startTest();
     try {
-      PaymentService.processPayment(reservation.Id, 'pm_test123', 30.00);
+      PaymentService.processPayment(data.reservation.Id, 'pm_test123', 30.00);
       System.assert(
         false,
         'Should have thrown exception due to circuit breaker'
@@ -280,35 +298,30 @@ public class PaymentServiceTest {
         e.getMessage().contains('Circuit breaker activated'),
         'Should throw circuit breaker exception'
       );
-      System.assert(
+      System.assertEquals(
+        true,
         PaymentService.circuitBreakerThrown,
         'Circuit breaker should be thrown'
       );
     }
     Test.stopTest();
 
-    // Reset circuit breaker
     PaymentService.testCircuitBreaker = false;
     PaymentService.circuitBreakerThrown = false;
   }
 
-  @isTest
+  @IsTest
   static void testProcessPaymentWithValidation() {
-    Reservation__c reservation = [SELECT Id FROM Reservation__c LIMIT 1];
-    reservation.Status__c = 'Confirmed';
-    update reservation;
+    TestData data = createConfirmedReservation();
 
     Test.startTest();
-
-    // Test with valid parameters
     PaymentService.PaymentResult result = PaymentService.processPayment(
-      reservation.Id,
+      data.reservation.Id,
       'pm_test123',
       30.00
     );
     System.assertEquals(true, result.success, 'Payment should succeed');
 
-    // Test with invalid parameters
     try {
       PaymentService.processPayment(null, 'pm_test123', 30.00);
       System.assert(
@@ -323,7 +336,7 @@ public class PaymentServiceTest {
     }
 
     try {
-      PaymentService.processPayment(reservation.Id, '', 30.00);
+      PaymentService.processPayment(data.reservation.Id, '', 30.00);
       System.assert(
         false,
         'Should have thrown exception for blank payment method ID'
@@ -336,7 +349,7 @@ public class PaymentServiceTest {
     }
 
     try {
-      PaymentService.processPayment(reservation.Id, 'pm_test123', -10.00);
+      PaymentService.processPayment(data.reservation.Id, 'pm_test123', -10.00);
       System.assert(false, 'Should have thrown exception for negative amount');
     } catch (AuraHandledException e) {
       System.assert(
@@ -346,7 +359,7 @@ public class PaymentServiceTest {
     }
 
     try {
-      PaymentService.processPayment(reservation.Id, 'pm_test123', null);
+      PaymentService.processPayment(data.reservation.Id, 'pm_test123', null);
       System.assert(false, 'Should have thrown exception for null amount');
     } catch (AuraHandledException e) {
       System.assert(
@@ -354,27 +367,20 @@ public class PaymentServiceTest {
         'Should throw appropriate exception'
       );
     }
-
     Test.stopTest();
   }
 
-  @isTest
+  @IsTest
   static void testProcessRefundWithValidation() {
-    Reservation__c reservation = [SELECT Id FROM Reservation__c LIMIT 1];
-    reservation.Status__c = 'Confirmed';
-    reservation.Payment_Status__c = 'Paid';
-    reservation.Payment_Transaction_Id__c = 'TXN_123456';
-    update reservation;
+    TestData data = createConfirmedReservation();
+    PaymentService.processPayment(data.reservation.Id, 'pm_test123', 30.00);
 
     Test.startTest();
-
-    // Test with valid parameters
     PaymentService.PaymentResult result = PaymentService.processRefund(
-      reservation.Id
+      data.reservation.Id
     );
     System.assertEquals(true, result.success, 'Refund should succeed');
 
-    // Test with invalid parameters
     try {
       PaymentService.processRefund(null);
       System.assert(
@@ -387,24 +393,18 @@ public class PaymentServiceTest {
         'Should throw appropriate exception'
       );
     }
-
     Test.stopTest();
   }
 
-  @isTest
+  @IsTest
   static void testProcessRefundWithCircuitBreaker() {
-    Reservation__c reservation = [SELECT Id FROM Reservation__c LIMIT 1];
-    reservation.Status__c = 'Confirmed';
-    reservation.Payment_Status__c = 'Paid';
-    reservation.Payment_Transaction_Id__c = 'TXN_123456';
-    update reservation;
-
-    // Activate circuit breaker
+    TestData data = createConfirmedReservation();
+    PaymentService.processPayment(data.reservation.Id, 'pm_test123', 30.00);
     PaymentService.testCircuitBreaker = true;
 
     Test.startTest();
     try {
-      PaymentService.processRefund(reservation.Id);
+      PaymentService.processRefund(data.reservation.Id);
       System.assert(
         false,
         'Should have thrown exception due to circuit breaker'
@@ -414,103 +414,46 @@ public class PaymentServiceTest {
         e.getMessage().contains('Circuit breaker activated'),
         'Should throw circuit breaker exception'
       );
-      System.assert(
+      System.assertEquals(
+        true,
         PaymentService.circuitBreakerThrown,
         'Circuit breaker should be thrown'
       );
     }
     Test.stopTest();
 
-    // Reset circuit breaker
     PaymentService.testCircuitBreaker = false;
     PaymentService.circuitBreakerThrown = false;
   }
 
-  @isTest
+  @IsTest
   static void testBulkOperations() {
-    // Create multiple reservations for bulk testing
-    List<Reservation__c> reservations = new List<Reservation__c>();
-    for (Integer i = 0; i < 5; i++) {
-      reservations.add(
-        new Reservation__c(
-          Showtime__c = [SELECT Id FROM Showtime__c LIMIT 1]
-          .Id,
-          Movie__c = [SELECT Id FROM Movie__c LIMIT 1]
-          .Id,
-          Customer_Name__c = 'Test Customer ' + i,
-          Customer_Email__c = 'test' + i + '@test.com',
-          Customer_Phone__c = '123456789' + i,
-          Number_of_Seats__c = 2,
-          Total_Amount__c = 30.00,
-          Status__c = 'Confirmed',
-          Payment_Status__c = 'Pending',
-          Confirmation_Code__c = 'TEST' + i
-        )
-      );
-    }
-    insert reservations;
+    TestData data = createConfirmedReservation();
 
     Test.startTest();
-
-    // Test bulk payment processing
     List<PaymentService.PaymentResult> results = new List<PaymentService.PaymentResult>();
-    for (Reservation__c res : reservations) {
-      PaymentService.PaymentResult result = PaymentService.processPayment(
-        res.Id,
-        'pm_test' + res.Id,
-        30.00
+    for (Integer i = 0; i < 5; i++) {
+      results.add(
+        PaymentService.processPayment(data.reservation.Id, 'pm_test' + i, 30.00)
       );
-      results.add(result);
     }
-
     Test.stopTest();
 
-    // Verify all payments succeeded
     for (PaymentService.PaymentResult result : results) {
       System.assertEquals(true, result.success, 'All payments should succeed');
     }
   }
 
-  @isTest
-  static void testErrorHandlingPatterns() {
-    Reservation__c reservation = [SELECT Id FROM Reservation__c LIMIT 1];
-
-    Test.startTest();
-
-    // Test exception handling in processPayment
-    try {
-      PaymentService.processPayment(reservation.Id, 'pm_test123', 30.00);
-      System.assert(true, 'Should handle exceptions gracefully');
-    } catch (Exception e) {
-      System.assert(true, 'Expected exception handling');
-    }
-
-    // Test exception handling in processRefund
-    try {
-      PaymentService.processRefund(reservation.Id);
-      System.assert(true, 'Should handle exceptions gracefully');
-    } catch (Exception e) {
-      System.assert(true, 'Expected exception handling');
-    }
-
-    Test.stopTest();
-  }
-
-  @isTest
+  @IsTest
   static void testDataValidationPatterns() {
-    Reservation__c reservation = [SELECT Id FROM Reservation__c LIMIT 1];
-    reservation.Status__c = 'Confirmed';
-    update reservation;
+    TestData data = createConfirmedReservation();
 
     Test.startTest();
-
-    // Test data sanitization
     PaymentService.PaymentResult result = PaymentService.processPayment(
-      reservation.Id,
+      data.reservation.Id,
       'pm_test_with_special_chars_123',
       30.00
     );
-
     System.assertEquals(
       true,
       result.success,
@@ -521,21 +464,16 @@ public class PaymentServiceTest {
       result.transactionId,
       'Should generate transaction ID'
     );
-
     Test.stopTest();
   }
 
-  @isTest
+  @IsTest
   static void testPaymentAmountValidation() {
-    Reservation__c reservation = [SELECT Id FROM Reservation__c LIMIT 1];
-    reservation.Status__c = 'Confirmed';
-    update reservation;
+    TestData data = createConfirmedReservation();
 
     Test.startTest();
-
-    // Test amount validation
     try {
-      PaymentService.processPayment(reservation.Id, 'pm_test123', 25.00); // Wrong amount
+      PaymentService.processPayment(data.reservation.Id, 'pm_test123', 25.00);
       System.assert(false, 'Should have thrown exception for wrong amount');
     } catch (AuraHandledException e) {
       System.assert(
@@ -543,28 +481,25 @@ public class PaymentServiceTest {
         'Should throw amount mismatch exception'
       );
     }
-
     Test.stopTest();
   }
 
-  @isTest
+  @IsTest
   static void testReservationStatusValidation() {
-    Reservation__c reservation = [SELECT Id FROM Reservation__c LIMIT 1];
-    reservation.Status__c = 'Cancelled'; // Invalid status
-    update reservation;
+    TestData data = createConfirmedReservation();
+    data.reservation.Status__c = 'Cancelled';
+    update data.reservation;
 
     Test.startTest();
-
     try {
-      PaymentService.processPayment(reservation.Id, 'pm_test123', 30.00);
+      PaymentService.processPayment(data.reservation.Id, 'pm_test123', 30.00);
       System.assert(false, 'Should have thrown exception for invalid status');
     } catch (AuraHandledException e) {
       System.assert(
-        e.getMessage().contains('not in a valid state'),
+        e.getMessage().contains('Reservation is not in a valid state'),
         'Should throw status validation exception'
       );
     }
-
     Test.stopTest();
   }
 }
